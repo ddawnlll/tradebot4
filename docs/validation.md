@@ -25,6 +25,22 @@ The first generated artifact marked the drawdown criterion as passed because
 30.0. The unit bug was found, fixed, and the report regenerated; the criterion
 now correctly fails. Every other criterion failed independently.
 
+## Tooling verification (observed, not inspected)
+
+| Check | Observation |
+|---|---|
+| Test suite | 69 tests pass (51 core/integration + 18 dashboard), `ruff` clean |
+| Deterministic replay | Two identical WIFUSDT backtests produced byte-identical trades, fills, orders and signals, and identical metrics |
+| Dashboard | All 7 pages rendered the 240-trade champion through Streamlit AppTest with 0 exceptions; HTTP smoke test returned 200 |
+| CLI | `status`, `scan`, `backtest`, `data catalog`, `data sync`, `journal enrich` executed; `risk pause` and `rollback` exited 2 with the live gate message |
+| Journal | DuckDB views returned 2,539,399 events, 322 trades, 212,255 signals |
+| Reconciliation | Development residual -0.020 USDT, OOS +0.008 USDT |
+| OOS robustness | 82 trades, zero bridge errors |
+
+Before the protective-order fixes the OOS run aborted after 3 reduce-only
+rejections. After the fixes it completed. This confirms the measurement is
+sound; it does not turn the negative expectancy into an edge.
+
 ## The economic finding
 
 The champion is close to breakeven *before fees* in development:
