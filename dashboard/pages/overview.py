@@ -61,7 +61,7 @@ with left:
     else:
         st.plotly_chart(
             charts.equity_drawdown_chart(equity, starting_balance),
-            use_container_width=True,
+            width="stretch",
             config={"displayModeBar": False},
         )
 
@@ -83,7 +83,7 @@ with right:
     figure.update_layout(title="Cumulative net R by entry time")
     st.plotly_chart(
         common.style_fig(figure, height=520, showlegend=False),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 
@@ -103,7 +103,7 @@ with left:
     histogram.update_layout(title="Net R per trade", xaxis_title="net R", yaxis_title="trades")
     st.plotly_chart(
         common.style_fig(histogram, height=320, showlegend=False),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 with right:
@@ -125,7 +125,7 @@ with right:
     )
     st.plotly_chart(
         common.style_fig(pnl_figure, height=320, showlegend=False),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 
@@ -138,7 +138,7 @@ if summary.is_empty():
 else:
     st.dataframe(
         summary.to_pandas(),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         column_config={
             "side": "Side",
@@ -163,7 +163,7 @@ else:
         colors_by_sign=True,
         height=300,
     )
-    st.plotly_chart(pnl_figure, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(pnl_figure, width="stretch", config={"displayModeBar": False})
 
 st.divider()
 st.subheader("Run composition")

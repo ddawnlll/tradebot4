@@ -100,6 +100,6 @@ def query(sql: str, paths: Paths | None = None) -> pl.DataFrame:
         make_views(paths)
     con = duckdb.connect(str(db), read_only=True)
     try:
-        return con.execute(sql).pl()
+        return pl.from_pandas(con.execute(sql).fetchdf())
     finally:
         con.close()

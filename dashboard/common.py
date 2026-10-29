@@ -243,7 +243,7 @@ def metric_row(items: list[tuple[str, str, str | None]]) -> None:
 def table(df: pl.DataFrame, *, height: int | None = None, **kwargs: Any) -> None:
     st.dataframe(
         df.to_pandas() if not df.is_empty() else df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         height=height,
         **kwargs,

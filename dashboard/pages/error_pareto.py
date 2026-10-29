@@ -75,7 +75,7 @@ figure.update_yaxes(title_text="R", secondary_y=False)
 figure.update_yaxes(title_text="cumulative %", secondary_y=True, range=[0, 105], showgrid=False)
 st.plotly_chart(
     common.style_fig(figure, height=420),
-    use_container_width=True,
+    width="stretch",
     config={"displayModeBar": False},
 )
 
@@ -91,7 +91,7 @@ with left:
     frequency.update_layout(title="Tag frequency", yaxis_title="trade-tag rows")
     st.plotly_chart(
         common.style_fig(frequency, height=340, showlegend=False),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 with right:
@@ -109,7 +109,7 @@ with right:
     avg.update_layout(title="Average R per tag", yaxis_title="avg R")
     st.plotly_chart(
         common.style_fig(avg, height=340, showlegend=False),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 
@@ -117,7 +117,7 @@ st.divider()
 st.subheader("Tag table")
 st.dataframe(
     summary.to_pandas(),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     column_config={
         "tag": "Tag",
@@ -157,7 +157,7 @@ else:
             "fees",
             "funding",
         ).to_pandas(),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     common.download_button(detail, "Download tagged trades CSV", f"{selected_tag}_trades.csv")

@@ -201,7 +201,7 @@ with one_min:
         bordercolor=common.COLORS["grid"],
         font={"color": common.COLORS["text"], "size": 12},
     )
-    st.plotly_chart(figure, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(figure, width="stretch", config={"displayModeBar": False})
 
 with fifteen_min:
     bars_15 = cache.resample_bars(bars, "15m")
@@ -215,7 +215,7 @@ with fifteen_min:
             if marker["ts"] >= bars_15["dt"][0] and marker["ts"] <= bars_15["dt"][-1]
         ],
     )
-    st.plotly_chart(figure_15, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(figure_15, width="stretch", config={"displayModeBar": False})
 
 st.divider()
 left, right = st.columns([1.4, 1.0])
@@ -228,7 +228,7 @@ with left:
             trade_fills.select(
                 "ts_ms", "kind", "side", "price", "qty", "fee", "liquidity", "order_type"
             ).to_pandas(),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 with right:
@@ -236,7 +236,7 @@ with right:
     if levels.is_empty():
         common.empty_state("No STOP/TP legs found in orders.parquet for this entry.")
     else:
-        st.dataframe(levels.to_pandas(), use_container_width=True, hide_index=True)
+        st.dataframe(levels.to_pandas(), width="stretch", hide_index=True)
     if not setup.is_empty():
         st.markdown("**Recorded setup**")
         setup_row = setup.row(0, named=True)

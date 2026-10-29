@@ -297,7 +297,7 @@ def dashboard() -> None:
 def status() -> None:
     """Show data and run status."""
     paths = Paths()
-    runs = sorted(paths.runs.glob("*"))
+    runs = sorted(p for p in paths.runs.iterdir() if (p / "metadata.json").exists())
     table = Table("item", "value")
     table.add_row("runs", str(len(runs)))
     if runs:

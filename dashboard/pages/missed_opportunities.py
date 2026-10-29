@@ -64,13 +64,13 @@ with left:
     )
     st.plotly_chart(
         common.style_fig(figure, height=400, showlegend=False),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 with right:
     st.dataframe(
         summary.to_pandas(),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         column_config={
             "reject_reason": "Reason",
@@ -165,7 +165,7 @@ if table.is_empty():
 else:
     st.dataframe(
         table.to_pandas(),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         column_config={
             "signal_ts_ms": st.column_config.DatetimeColumn("Signal time", format="YYYY-MM-DD HH:mm"),
@@ -243,7 +243,7 @@ else:
             levels=levels,
             markers=markers,
         )
-        st.plotly_chart(figure, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(figure, width="stretch", config={"displayModeBar": False})
         st.caption(
             f"Outcome `{row['outcome']}` after {row['bars_held']} bars, hypothetical R "
             f"{common.fmt_num(row['r_multiple'])}. {row['note']}."

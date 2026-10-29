@@ -33,7 +33,7 @@ def dimension_chart(frame, title: str, key: str = "key") -> None:
             colors_by_sign=True,
             height=330,
         ),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 
@@ -78,7 +78,7 @@ with left:
     histogram.update_layout(title="Net R histogram", xaxis_title="net R", yaxis_title="trades")
     st.plotly_chart(
         common.style_fig(histogram, height=380, showlegend=False),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 with right:
@@ -100,7 +100,7 @@ with right:
         box.update_layout(title="Net R by direction", yaxis_title="net R")
         st.plotly_chart(
             common.style_fig(box, height=380),
-            use_container_width=True,
+            width="stretch",
             config={"displayModeBar": False},
         )
     else:
@@ -122,6 +122,6 @@ with st.expander("Dimension tables (sortable)", expanded=False):
         st.markdown(f"**{label}**")
         st.dataframe(
             frame.drop("sort_key").to_pandas(),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )

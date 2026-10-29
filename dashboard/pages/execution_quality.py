@@ -81,7 +81,7 @@ with left:
         )
         st.plotly_chart(
             common.style_fig(scatter, height=400),
-            use_container_width=True,
+            width="stretch",
             config={"displayModeBar": False},
         )
 
@@ -105,7 +105,7 @@ with right:
         )
         st.plotly_chart(
             common.style_fig(histogram, height=400, showlegend=False),
-            use_container_width=True,
+            width="stretch",
             config={"displayModeBar": False},
         )
 
@@ -125,7 +125,7 @@ with left:
                 colors_by_sign=True,
                 height=350,
             ),
-            use_container_width=True,
+            width="stretch",
             config={"displayModeBar": False},
         )
 with right:
@@ -144,10 +144,10 @@ with right:
         donut.update_layout(title="Maker versus taker fills")
         st.plotly_chart(
             common.style_fig(donut, height=350),
-            use_container_width=True,
+            width="stretch",
             config={"displayModeBar": False},
         )
-        st.dataframe(mix.to_pandas(), use_container_width=True, hide_index=True)
+        st.dataframe(mix.to_pandas(), width="stretch", hide_index=True)
 
 st.divider()
 st.subheader("Fees")
@@ -157,7 +157,7 @@ if fees.is_empty():
 else:
     st.dataframe(
         fees.to_pandas(),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
         column_config={
             "fee": st.column_config.NumberColumn("Fee", format="%.6f"),
@@ -171,7 +171,7 @@ st.subheader("Orders and rejections")
 left, right = st.columns([1.0, 1.0])
 with left:
     health = data.order_health(metadata, orders, fills, bundle["signals"])
-    st.dataframe(health.to_pandas(), use_container_width=True, hide_index=True)
+    st.dataframe(health.to_pandas(), width="stretch", hide_index=True)
     latency = health.filter(health["metric"] == "latency_ms")
     denied = health.filter(health["metric"] == "denied_orders")
     if not latency.is_empty() and latency["value"][0] is not None:
@@ -195,7 +195,7 @@ with right:
                 color=common.COLORS["red"],
                 height=360,
             ),
-            use_container_width=True,
+            width="stretch",
             config={"displayModeBar": False},
         )
 
@@ -218,6 +218,6 @@ else:
             "exit_reason",
             "net_r",
         ).to_pandas(),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )

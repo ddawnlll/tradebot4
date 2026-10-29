@@ -572,6 +572,7 @@ def enrich_trades(trades: pl.DataFrame, signals: pl.DataFrame) -> pl.DataFrame:
                 right_on="prior_ts_ms",
                 by="symbol",
                 strategy="backward",
+                check_sortedness=False,
             )
             .with_columns(
                 pl.col("prior_ts_ms").alias("signal_ts_ms"),

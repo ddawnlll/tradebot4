@@ -117,7 +117,7 @@ with left:
     figure.update_yaxes(title_text="count / win %", secondary_y=True, showgrid=False)
     st.plotly_chart(
         common.style_fig(figure, height=450),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 
@@ -181,7 +181,7 @@ with right:
     scatter.update_layout(title="Score versus net R", xaxis_title="setup score", yaxis_title="net R")
     st.plotly_chart(
         common.style_fig(scatter, height=450),
-        use_container_width=True,
+        width="stretch",
         config={"displayModeBar": False},
     )
 
@@ -189,7 +189,7 @@ st.divider()
 st.subheader("Bin detail")
 st.dataframe(
     deciles.to_pandas(),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
     column_config={
         "decile": "Bin",
@@ -226,4 +226,4 @@ if sensitivity.is_empty():
     if buffer_atr is not None:
         st.caption(f"Configured stop buffer: {buffer_atr} ATR. This is a single setting, not a sweep.")
 else:
-    st.dataframe(sensitivity.to_pandas(), use_container_width=True, hide_index=True)
+    st.dataframe(sensitivity.to_pandas(), width="stretch", hide_index=True)
