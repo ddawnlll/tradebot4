@@ -29,7 +29,7 @@ now correctly fails. Every other criterion failed independently.
 
 | Check | Observation |
 |---|---|
-| Test suite | 69 tests pass (51 core/integration + 18 dashboard), `ruff` clean |
+| Test suite | 56 tests pass (38 core/integration + 18 dashboard), `ruff` clean |
 | Deterministic replay | Two identical WIFUSDT backtests produced byte-identical trades, fills, orders and signals, and identical metrics |
 | Dashboard | All 7 pages rendered the 240-trade champion through Streamlit AppTest with 0 exceptions; HTTP smoke test returned 200 |
 | CLI | `status`, `scan`, `backtest`, `data catalog`, `data sync`, `journal enrich` executed; `risk pause` and `rollback` exited 2 with the live gate message |
