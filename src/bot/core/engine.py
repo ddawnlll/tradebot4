@@ -575,10 +575,17 @@ class DecisionEngine:
             self.on_entry_rejected(symbol)
 
     def on_entry_rejected(self, symbol: str) -> None:
-        """Entry order never filled: release the pending slot and risk."""
-        pos = self.positions.pop(symbol, None)
-        if pos is not None and not pos.is_open:
-            self.risk.on_position_closed(pos.risk_usdt)
+        """Entry order never filled: release the pending slot and risk.
+
+        An *open* position must never be removed here. Doing so would leave the
+        broker position unmanaged and lose its trade record, which is exactly
+        how a reconciliation residual is created.
+        """
+        pos = self.positions.get(symbol)
+        if pos is None or pos.is_open:
+            return
+        self.positions.pop(symbol, None)
+        self.risk.on_position_closed(pos.risk_usdt)
 
     def finalize(self, ts_ms: int, prices: dict[str, float] | None = None) -> list[TradeResult]:
         """Close all open positions at the last known price (end of data)."""

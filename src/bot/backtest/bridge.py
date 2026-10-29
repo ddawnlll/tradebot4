@@ -165,7 +165,7 @@ class BacktestBridge(Strategy):
         except ValueError:
             qty = None
         if qty is None or qty.as_double() <= 0:
-            self._engine.on_entry_rejected(intent.symbol)
+            self._close_or_reject(intent, inst)
             return
         stop_cid = self._next_id("S")
         stop = self.order_factory.stop_market(
@@ -185,12 +185,16 @@ class BacktestBridge(Strategy):
         tps = intent.take_profits
         legs = intent.legs
         for i, tp in enumerate(tps):
-            if len(tps) == 1:
-                leg_qty = qty
-            elif legs and len(legs) == len(tps):
-                leg_qty = inst.make_qty(intent.quantity * legs[i], round_down=True)
-            else:
-                leg_qty = inst.make_qty(intent.quantity / len(tps), round_down=True)
+            try:
+                if len(tps) == 1:
+                    leg_qty = qty
+                elif legs and len(legs) == len(tps):
+                    leg_qty = inst.make_qty(intent.quantity * legs[i], round_down=True)
+                else:
+                    leg_qty = inst.make_qty(intent.quantity / len(tps), round_down=True)
+            except ValueError:
+                # Remaining size is below one step; the stop covers it.
+                continue
             if leg_qty.as_double() <= 0:
                 continue
             cid = self._next_id("P")
@@ -216,7 +220,7 @@ class BacktestBridge(Strategy):
         except ValueError:
             qty = None
         if qty is None or qty.as_double() <= 0:
-            self._engine.on_entry_rejected(intent.symbol)
+            self._close_or_reject(intent, inst)
             return
         cid = self._next_id("X")
         order = self.order_factory.market(
@@ -230,6 +234,16 @@ class BacktestBridge(Strategy):
         self._orders[cid] = _OrderMeta(cid, intent.symbol, "EXIT", requested_qty=qty.as_double(), reason=intent.close_reason, signal_id=intent.signal_id)
         self._record_order(intent.ts_ms, intent.symbol, cid, "MARKET", "EXIT", intent.entry_price, qty.as_double())
         self.submit_order(order)
+
+    def _close_or_reject(self, intent: OrderIntent, inst) -> None:
+        """Handle a quantity that rounds to zero without losing an open position."""
+        pos = self._engine.positions.get(intent.symbol)
+        if pos is not None and pos.is_open:
+            state = self._engine.states.get(intent.symbol)
+            px = state.last_1m.close if state and state.last_1m else pos.entry_price
+            self._engine.force_close(intent.symbol, intent.ts_ms, px)
+        else:
+            self._engine.on_entry_rejected(intent.symbol)
 
     def _cancel_protective(self, symbol: str) -> None:
         ids = self._protective.pop(symbol, {})

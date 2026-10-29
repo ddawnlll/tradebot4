@@ -25,13 +25,13 @@ END = int(datetime(2024, 12, 1, tzinfo=UTC).timestamp() * 1000)
 def test_node_matches_engine(tmp_path) -> None:
     paths = Paths()
     specs = load_instruments(paths)
-    if "ETHUSDT" not in specs:
+    if "WIFUSDT" not in specs:
         pytest.skip("instrument metadata missing")
     catalog = tmp_path / "catalog"
-    export_symbol(paths, specs["ETHUSDT"], START, END, catalog_path=catalog)
+    export_symbol(paths, specs["WIFUSDT"], START, END, catalog_path=catalog)
 
     cfg = BacktestConfig(
-        symbols=["ETHUSDT"],
+        symbols=["WIFUSDT"],
         start_ms=START,
         end_ms=END,
         use_funding=False,

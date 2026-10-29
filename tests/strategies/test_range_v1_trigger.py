@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from bot.core.market.state import SymbolState
-from bot.core.market.scoring import RangeScoreConfig
 from bot.core.models import Bar, MarketRegime, RegimeState, Side, Zone
 from bot.core.strategies.base import EntryContext
 from bot.core.strategies.range_v1 import RangeV1Config, RangeV1Strategy
