@@ -11,7 +11,6 @@ import json
 import logging
 from datetime import UTC, date, datetime
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -203,7 +202,7 @@ def scan(
     """Replay recent data through the scanner and print current range candidates."""
     from bot.core.market.scanner import MarketScanner
     from bot.core.market.state import SymbolConfig, SymbolState
-    from bot.core.models import Bar, RegimeState
+    from bot.core.models import Bar
     from bot.data.instruments import load_instruments
     from bot.data.loader import load_bars_frame
 
@@ -266,7 +265,7 @@ def journal_etl() -> None:
 
 
 @journal_app.command("enrich")
-def journal_enrich(run: Optional[str] = typer.Option(None, help="run id or path")) -> None:
+def journal_enrich(run: str | None = typer.Option(None, help="run id or path")) -> None:
     """Tag trades and compute enrichment for a run."""
     from bot.journal.enrich import missed_opportunities, post_exit_drift
     from bot.journal.tagging import tag_trades

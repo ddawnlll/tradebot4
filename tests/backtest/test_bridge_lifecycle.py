@@ -141,3 +141,27 @@ def test_oversized_order_is_rejected_for_liquidity() -> None:
     assert engine.reject_counts.get("LIQUIDITY", 0) >= 1
     assert not bridge.out.fills
     bt.dispose()
+
+
+def test_breakeven_stop_move_is_skipped_when_price_gaps_through_it() -> None:
+    """After TP1, if price is already beyond breakeven, keep the original stop.
+
+    Placing a stop on the wrong side of the market would be rejected by the
+    exchange; the core must leave the valid older stop in place.
+    """
+    spec, engine = _engine(Side.LONG, stop=99.0, tps=(100.5, 102.0))
+    prices = flat_then_move(100.0, [100.6, 99.8, 99.5, 98.8], flat_bars=20)
+    bt, bridge = run_synthetic(engine, spec, prices, start=START)
+
+    assert not bridge.out.errors
+    # The position must have been stopped at the original level, not left naked.
+    assert len(engine.closed_trades) == 1
+    trade = engine.closed_trades[0]
+    assert trade.exit_reason is ExitReason.STOP
+    assert trade.tp1_filled is True
+    # No protective order may have been rejected for being in the market, and
+    # the stop must not have been replaced above the market.
+    assert not any("in the market" in e["detail"] for e in bridge.out.errors)
+    stops = [o for o in bridge.out.orders if o["kind"] == "STOP"]
+    assert stops and all(o["price"] == 99.0 for o in stops)
+    bt.dispose()

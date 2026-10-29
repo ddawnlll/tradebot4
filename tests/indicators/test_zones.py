@@ -59,7 +59,9 @@ def test_zone_touches_accumulate_without_revision() -> None:
         det.update(bar(i, h, h - 1))
         snapshots.append(det.zones())
     # Once a zone exists its touch count never decreases.
-    for prev, cur in zip(snapshots, snapshots[1:], strict=False):
+    import itertools
+
+    for prev, cur in itertools.pairwise(snapshots):
         for z in cur:
             match = [p for p in prev if abs(p.center - z.center) < 1e-9]
             if match:
@@ -78,3 +80,11 @@ def test_sweep_buffer_uses_only_past_breaches() -> None:
     det.update(bar(5, z.upper + 2.0, z.lower - 0.5, close=z.center))
     buf = det.sweep_buffer(0.9, fallback=0.1, min_samples=1)
     assert buf >= 1.0
+
+
+def test_min_touches_is_enforced() -> None:
+    det = ZoneDetector("X", ZoneConfig(atr_period=2, half_width_atr=0.01, cluster_atr=0.5), PivotConfig(left=1, right=1))
+    for i, h in enumerate([100, 105, 100, 100, 100]):
+        det.update(bar(i, h, h - 1))
+    assert det.zones("RESISTANCE", min_touches=2) == []
+    assert len(det.zones("RESISTANCE", min_touches=1)) == 1

@@ -407,6 +407,9 @@ class TradeResult:
     net_pnl: float
     net_r: float
     risk_usdt: float
+    stop_price: float
+    tp1_price: float
+    tp2_price: float | None
     mae_r: float
     mfe_r: float
     tp1_filled: bool

@@ -20,7 +20,6 @@ from nautilus_trader.model import (
     InstrumentId,
     OrderFilled,
     OrderSide,
-    OrderType,
     PositionAdjustmentType,
     TimeInForce,
     Venue,
@@ -149,6 +148,17 @@ class BacktestBridge(Strategy):
 
     def _submit_protection(self, intent: OrderIntent) -> None:
         inst = self._instrument(intent.symbol)
+        state = self._engine.states.get(intent.symbol)
+        last_px = state.last_1m.close if state and state.last_1m else None
+        long_position = intent.side is Side.SHORT  # closing side SELL means long
+        if last_px is not None:
+            invalid = (long_position and intent.stop_price >= last_px) or (
+                not long_position and intent.stop_price <= last_px
+            )
+            if invalid:
+                # Never cancel a valid older stop for an unplaceable replacement.
+                self._engine.positions[intent.symbol].pending_protect = False
+                return
         self._cancel_protective(intent.symbol)
         try:
             qty = inst.make_qty(intent.quantity, round_down=True)
@@ -229,10 +239,10 @@ class BacktestBridge(Strategy):
     def _cancel(self, cid: str) -> None:
         order = self.cache.order(ClientOrderId(cid))
         if order is not None:
-            try:
+            import contextlib
+
+            with contextlib.suppress(Exception):  # already closed
                 self.cancel_order(order)
-            except Exception:  # pragma: no cover - already closed
-                pass
 
     # ----------------------------------------------------------------- events
     def on_order_filled(self, event: OrderFilled) -> None:
@@ -273,7 +283,7 @@ class BacktestBridge(Strategy):
             from bot.core.models import ExitReason
 
             pos = self._engine.positions.get(symbol)
-            reason = ExitReason.STOP_BREAKEVEN if pos is not None and pos.tp1_filled else ExitReason.STOP
+            reason = ExitReason.STOP_BREAKEVEN if pos is not None and pos.stop_moved_to_breakeven else ExitReason.STOP
         fill = FillEvent(ts_ms=ts_ms, symbol=symbol, kind=kind, price=px, qty=qty, fee=fee, order_id=cid, reason=reason)
         followups = self._engine.on_fill(fill)
         if symbol not in self._engine.positions:
@@ -424,7 +434,7 @@ class BacktestBridge(Strategy):
             free = bf.as_double() if bf is not None else 0.0
             bl = account.balance_locked(self._usdt)
             locked = bl.as_double() if bl is not None else 0.0
-        for symbol, nid in self._nautilus_ids.items():
+        for nid in self._nautilus_ids.values():
             u = self.portfolio.unrealized_pnl(InstrumentId.from_str(nid))
             if u is not None:
                 upnl += u.as_double()

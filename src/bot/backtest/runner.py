@@ -17,7 +17,6 @@ from decimal import Decimal
 from pathlib import Path
 
 import polars as pl
-
 from nautilus_trader.backtest import BacktestEngine, BacktestEngineConfig
 from nautilus_trader.common import LogLevel
 from nautilus_trader.config import LoggerConfig, RiskEngineConfig
@@ -327,6 +326,17 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
                 missed.write_parquet(run_dir / "missed.parquet", compression="zstd")
         except Exception as exc:  # pragma: no cover
             log.warning("missed opportunity analysis failed: %s", exc)
+        try:
+            from bot.journal.enrich import stop_tp_ambiguity
+
+            ambiguity = stop_tp_ambiguity(trades, paths)
+            if ambiguity.height:
+                ambiguity.write_parquet(run_dir / "ambiguity.parquet", compression="zstd")
+                meta["ambiguous_trades"] = int((ambiguity["ambiguous_bars"] > 0).sum())
+                meta["ambiguous_bars"] = int(ambiguity["ambiguous_bars"].sum())
+                (run_dir / "metadata.json").write_text(json.dumps(meta, indent=2, default=str))
+        except Exception as exc:  # pragma: no cover
+            log.warning("ambiguity audit failed: %s", exc)
 
     return BacktestResult(
         run_id=run_id,
@@ -412,6 +422,9 @@ def _trade_row(t) -> dict:
         "net_pnl": t.net_pnl,
         "net_r": t.net_r,
         "risk_usdt": t.risk_usdt,
+        "stop_price": t.stop_price,
+        "tp1_price": t.tp1_price,
+        "tp2_price": t.tp2_price,
         "mae_r": t.mae_r,
         "mfe_r": t.mfe_r,
         "tp1_filled": t.tp1_filled,
@@ -433,7 +446,7 @@ def _write_journal(run_dir, run_id, meta, signals, trades, fills, orders, equity
             config_hash=meta["config_hash"],
             designation=meta.get("designation", "research"),
         )
-        for name, df, event_type, ts_col in (
+        for _name, df, event_type, ts_col in (
             ("signals", signals, "SIGNAL", "ts_ms"),
             ("trades", trades, "TRADE", "exit_ts_ms"),
             ("fills", fills, "FILL", "ts_ms"),
@@ -555,7 +568,14 @@ def run_backtest_node(
     )
     from nautilus_trader.common import LogLevel
     from nautilus_trader.config import LoggerConfig
-    from nautilus_trader.model import BarAggregation, BarSpecification, BookType, InstrumentId, NautilusDataType, PriceType
+    from nautilus_trader.model import (
+        BarAggregation,
+        BarSpecification,
+        BookType,
+        InstrumentId,
+        NautilusDataType,
+        PriceType,
+    )
     from nautilus_trader.persistence import DataCatalogConfig
 
     paths = paths or Paths()
@@ -577,7 +597,6 @@ def run_backtest_node(
         ),
         RiskPolicy(RiskPolicyConfig(max_positions=cfg.max_positions, risk_fraction=cfg.risk_fraction)),
     )
-    usdt = Currency.from_str("USDT")
     venue = BacktestVenueConfig(
         name=cfg.venue,
         oms_type=OmsType.NETTING,

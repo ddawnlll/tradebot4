@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from bot.core.indicators.atr import EMA
-from bot.core.models import RejectReason, RegimeState, Side
+from bot.core.models import RegimeState, RejectReason, Side
 from bot.core.strategies.base import (
     EntryContext,
     EntryDecision,

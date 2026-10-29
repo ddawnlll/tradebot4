@@ -76,16 +76,16 @@ def make_views(paths: Paths | None = None) -> Path:
         if (paths.journal / "tags.parquet").exists():
             con.execute(f"CREATE OR REPLACE VIEW tags AS SELECT * FROM read_parquet('{paths.journal / 'tags.parquet'}')")
         con.execute(
-            f"CREATE OR REPLACE VIEW trades AS SELECT *, json_extract_string(payload, '$.trade_id') AS trade_id,"
-            f" json_extract_string(payload, '$.symbol') AS trade_symbol,"
-            f" CAST(json_extract_string(payload, '$.net_r') AS DOUBLE) AS net_r,"
-            f" CAST(json_extract_string(payload, '$.net_pnl') AS DOUBLE) AS net_pnl"
-            f" FROM events WHERE event_type='TRADE'"
+            "CREATE OR REPLACE VIEW trades AS SELECT *, json_extract_string(payload, '$.trade_id') AS trade_id,"
+            " json_extract_string(payload, '$.symbol') AS trade_symbol,"
+            " CAST(json_extract_string(payload, '$.net_r') AS DOUBLE) AS net_r,"
+            " CAST(json_extract_string(payload, '$.net_pnl') AS DOUBLE) AS net_pnl"
+            " FROM events WHERE event_type='TRADE'"
         )
         con.execute(
-            f"CREATE OR REPLACE VIEW signals AS SELECT *, json_extract_string(payload, '$.reject_reason') AS reject_reason,"
-            f" CAST(json_extract_string(payload, '$.score') AS DOUBLE) AS score"
-            f" FROM events WHERE event_type='SIGNAL'"
+            "CREATE OR REPLACE VIEW signals AS SELECT *, json_extract_string(payload, '$.reject_reason') AS reject_reason,"
+            " CAST(json_extract_string(payload, '$.score') AS DOUBLE) AS score"
+            " FROM events WHERE event_type='SIGNAL'"
         )
     finally:
         con.close()

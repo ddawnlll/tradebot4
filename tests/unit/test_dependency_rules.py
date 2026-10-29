@@ -62,7 +62,10 @@ def test_core_does_not_import_adapters() -> None:
     for path in (SRC / "core").rglob("*.py"):
         tree = ast.parse(path.read_text())
         for node in ast.walk(tree):
-            if isinstance(node, ast.ImportFrom) and node.module and node.module.startswith("bot."):
-                if node.module.startswith(("bot.backtest", "bot.data", "bot.execution", "bot.journal", "bot.kaizen")):
-                    offenders.append((_rel(path), node.module))
+            if (
+                isinstance(node, ast.ImportFrom)
+                and node.module
+                and node.module.startswith(("bot.backtest", "bot.data", "bot.execution", "bot.journal", "bot.kaizen"))
+            ):
+                offenders.append((_rel(path), node.module))
     assert not offenders, offenders

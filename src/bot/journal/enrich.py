@@ -122,3 +122,29 @@ def _parse(value) -> dict:
         return json.loads(value)
     except (TypeError, ValueError):
         return {}
+
+
+def stop_tp_ambiguity(trades: pl.DataFrame, paths: Paths | None = None) -> pl.DataFrame:
+    """Count 1m bars where both the stop and the active take profit were touched.
+
+    Bar data cannot resolve the order of the high and low inside a bar. We keep
+    the count so the report can state how often the execution path mattered.
+    """
+    if trades.height == 0:
+        return pl.DataFrame()
+    paths = paths or Paths()
+    rows = []
+    for t in trades.iter_rows(named=True):
+        stop = t.get("stop_price")
+        tp = t.get("tp1_price") if not t.get("tp1_filled") else t.get("tp2_price")
+        if stop is None or tp is None:
+            continue
+        df = load_bars_frame(paths, t["symbol"], int(t["entry_ts_ms"]), int(t["exit_ts_ms"]))
+        if df.height == 0:
+            continue
+        if t["side"] == "LONG":
+            both = df.filter((pl.col("low") <= stop) & (pl.col("high") >= tp))
+        else:
+            both = df.filter((pl.col("high") >= stop) & (pl.col("low") <= tp))
+        rows.append({"trade_id": t["trade_id"], "ambiguous_bars": both.height})
+    return pl.DataFrame(rows) if rows else pl.DataFrame()

@@ -59,9 +59,6 @@ def deflated_sharpe_ratio(returns: np.ndarray, n_trials: int) -> float | None:
     n = len(returns)
     if n < 5 or n_trials < 1:
         return None
-    from scipy.stats import norm
-
-    sr = returns.mean() / returns.std(ddof=1) if returns.std(ddof=1) > 0 else 0.0
     expected_max = math.sqrt(2 * math.log(max(n_trials, 2))) - (
         math.log(math.log(max(n_trials, 2))) + math.log(4 * math.pi)
     ) / (2 * math.sqrt(2 * math.log(max(n_trials, 2))))
@@ -73,13 +70,13 @@ def trade_r_ci(trades) -> dict:
         return {}
     r = trades["net_r"].to_numpy()
     mean, lo, hi = bootstrap_mean_ci(r)
-    bmean, blo, bhi = block_bootstrap_mean_ci(r)
+    _, blo, bhi = block_bootstrap_mean_ci(r)
     means = bootstrap_means(r)
     return {
         "mean_r": mean,
         "mean_r_ci95": [lo, hi],
         "mean_r_block_ci95": [blo, bhi],
         "prob_mean_r_positive": float((means > 0).mean()),
-        "trades": int(len(r)),
+        "trades": len(r),
         "std_r": float(r.std(ddof=1)) if len(r) > 1 else None,
     }

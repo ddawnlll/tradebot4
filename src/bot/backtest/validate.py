@@ -15,18 +15,16 @@ from __future__ import annotations
 
 import json
 import logging
-import os
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import asdict, dataclass, field, replace
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 
 import polars as pl
 
 from bot.backtest.monte_carlo import MonteCarloConfig, run_monte_carlo
-from bot.backtest.runner import BacktestConfig, BacktestResult, run_backtest
+from bot.backtest.runner import BacktestConfig, run_backtest
 from bot.backtest.statistics import deflated_sharpe_ratio, probabilistic_sharpe_ratio, trade_r_ci
-from bot.core.market.scoring import RangeScoreConfig
 from bot.data.storage import Paths
 
 log = logging.getLogger(__name__)

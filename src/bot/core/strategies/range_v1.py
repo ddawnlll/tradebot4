@@ -21,7 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from bot.core.models import ExitReason, RejectReason, RegimeState, Side
+from bot.core.models import ExitReason, RegimeState, RejectReason, Side
 from bot.core.strategies.base import (
     EntryContext,
     EntryDecision,
@@ -118,10 +118,11 @@ class RangeV1Strategy(StrategyBase):
         rejection = bar.lower_wick >= self.config.rejection_wick_frac * max(bar.range, 1e-12)
         if not (touched and inside and rejection):
             return False
-        if self.config.respect_higher_tf and ctx.higher_regime is not None:
-            if ctx.higher_regime.state is RegimeState.TREND_DOWN:
-                return False
-        return True
+        return not (
+            self.config.respect_higher_tf
+            and ctx.higher_regime is not None
+            and ctx.higher_regime.state is RegimeState.TREND_DOWN
+        )
 
     def _short_trigger(self, ctx: EntryContext, setup) -> bool:
         bar = ctx.bar
@@ -131,10 +132,11 @@ class RangeV1Strategy(StrategyBase):
         rejection = bar.upper_wick >= self.config.rejection_wick_frac * max(bar.range, 1e-12)
         if not (touched and inside and rejection):
             return False
-        if self.config.respect_higher_tf and ctx.higher_regime is not None:
-            if ctx.higher_regime.state is RegimeState.TREND_UP:
-                return False
-        return True
+        return not (
+            self.config.respect_higher_tf
+            and ctx.higher_regime is not None
+            and ctx.higher_regime.state is RegimeState.TREND_UP
+        )
 
     def _long_proposal(self, ctx: EntryContext, setup) -> EntryProposal | EntryDecision:
         price = ctx.bar.close

@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import math
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from bot.core.indicators.atr import ATR
 from bot.core.models import Bar, Pivot, Zone
@@ -152,7 +152,7 @@ class ZoneDetector:
         if len(self._breaches) < min_samples:
             return fallback
         vals = sorted(self._breaches)
-        idx = min(len(vals) - 1, max(0, int(round(quantile * (len(vals) - 1)))))
+        idx = min(len(vals) - 1, max(0, round(quantile * (len(vals) - 1))))
         return max(vals[idx], fallback)
 
     def _apply_pivot(self, pivot: Pivot, atr: float) -> None:
@@ -225,6 +225,8 @@ class ZoneDetector:
         out: list[Zone] = []
         for z in self._zones:
             if kind is not None and z.kind != kind:
+                continue
+            if z.touches < mt:
                 continue
             out.append(
                 Zone(

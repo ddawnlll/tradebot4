@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
-from typing import Mapping
 
 from bot.core.market.scoring import RangeScoreConfig, build_range_setup
 from bot.core.market.state import SymbolState

@@ -10,7 +10,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import polars as pl
-
 from nautilus_trader.model import FundingRateUpdate, InstrumentId
 
 MS_TO_NS = 1_000_000
@@ -102,7 +101,7 @@ def funding_for_trades(trades, fills, funding_df, paths, tolerance: float = 1e-9
         kinds = sub["kind"].to_list()
         qtys = sub["qty"].to_list()
 
-        def qty_at(t: int) -> float:
+        def qty_at(t: int, ts=ts, kinds=kinds, qtys=qtys) -> float:
             q = 0.0
             for i, when in enumerate(ts):
                 if when > t:

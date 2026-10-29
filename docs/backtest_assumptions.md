@@ -1,0 +1,83 @@
+# Backtest assumptions
+
+Every assumption below is either implemented in code or explicitly listed as a
+known divergence. The goal is a result that is wrong in a *conservative*
+direction, or clearly labelled as optimistic.
+
+## Data and time
+
+| Item | Assumption |
+|---|---|
+| Base data | Binance `data.binance.vision` 1m klines, checksum verified |
+| Timestamps | UTC epoch ms; `ts_close_ms` is exclusive (`close_time + 1`) |
+| Nautilus timestamps | `ts_event = ts_init = ts_close_ms * 1e6`; bar execution requires the close |
+| Decision bars | 15m entry, 1h context, 4h higher-timeframe bias, built by the core aggregator |
+| Incomplete bars | A 15m bar with a gap or fewer than 15 base bars is marked incomplete and never traded |
+| Look-ahead | Pivots are confirmed after `R` right bars and never revised; decisions use only closed bars |
+| Warmup | 1h regime needs 40 bars, 15m ATR needs 14, zones need several pivots; entries are blocked until ready |
+
+## Execution
+
+| Item | Assumption | Bias |
+|---|---|---|
+| Entry | Market order at the 15m close that produced the signal (no latency model) | optimistic by roughly the time to the next trade |
+| Exit (signal) | Market order at the 1m close where the rule triggered | neutral |
+| Stop | `STOP_MARKET`, trigger on `LAST`, fills at the next synthetic price point; gaps fill worse than the stop | realistic to conservative |
+| Take profit | `LIMIT` with `prob_fill_on_limit = 1.0` at the touch; maker fee | optimistic on queue position, partially offset by maker fee |
+| Intrabar path | `Open -> High -> Low -> Close` (`bar_adaptive_high_low_ordering=False`) | optimistic for longs whose TP precedes the stop, conservative for shorts |
+| Ambiguity | A bar where both stop and TP are touched is counted and reported; hypothetical analyses use `STOP_FIRST` | reported |
+| Latency | Zero. A `StaticLatencyModel` on bar-only data defers fills to the next bar close, which overstates delay | neutral for research, must be revisited live |
+| Participation | Orders above 2% of the signal bar's volume are rejected | conservative |
+| Partial fills | Handled: order mapping is kept until the order is fully filled; protection is resized | realistic |
+
+## Costs
+
+| Cost | Value |
+|---|---|
+| Maker fee | 0.020% |
+| Taker fee | 0.050% |
+| Slippage in sizing | 2 bps per side, included in the risk budget |
+| Funding | Historical rate at publication time; positive rate debits longs |
+| Funding price proxy | 1m close at settlement, not mark price (mark data not in the catalog) |
+| Fee reserve | 1.0x the taker fee at entry and exit |
+
+## Capital and risk
+
+| Item | Value |
+|---|---|
+| Starting equity | 20 USDT |
+| Risk per trade | 5% of current equity (configurable 2-10%) |
+| Max leverage | 10x |
+| Max positions | 1 (config can raise to 2) |
+| Margin buffer | 20% of free margin left unused |
+| Min notional buffer | 10% above the exchange minimum |
+| Liquidation | Isolated-margin approximation with 0.5% maintenance; the stop must sit before liquidation with a 0.5% buffer |
+| Daily loss limit | 15% -> `REDUCING` (no new entries) |
+| Losing streak | 4 losses -> 24h cooldown |
+| Kill switch | 50% drawdown -> `HALTED`, human approval required to resume |
+
+## Accounting and reconciliation
+
+The Nautilus account is authoritative for equity. The core records gross PnL,
+fees, funding and slippage per trade. Funding is reconstructed from the fill
+timeline because the pinned release drops `PositionAdjusted` before Python.
+After every run:
+
+```
+residual = final_equity - starting_balance - sum(trade.net_pnl)
+```
+
+A residual above 0.5% of starting equity is logged; the current test suite and
+development runs reconcile to 0.0 USDT.
+
+## Not modelled
+
+* Mark-price triggered stops and exchange liquidation-engine details.
+* Order-book depth, queue position and market impact.
+* Exchange outages, API rate limits, listen-key expiry, partial exchange
+  rejects beyond the Nautilus risk engine.
+* Funding-rate prediction between the last data point and the next settlement.
+* Taxes, withdrawal limits, and jurisdiction restrictions.
+
+These are reasons why a GO is *permission to test on testnet*, not permission
+to trade real money.

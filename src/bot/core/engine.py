@@ -7,8 +7,9 @@ strategy on completed entry-timeframe bars, applies risk, and emits
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Literal
+from typing import Any, Literal
 
 from bot.core.market.scanner import MarketScanner, ScannerConfig
 from bot.core.market.scoring import RangeScoreConfig
@@ -68,13 +69,21 @@ class ManagedPosition:
     is_open: bool = False
     exit_pending: bool = False
     last_protect_ts: int = 0
+    last_price: float = 0.0
     pending_protect: bool = False
     pending_move_stop: bool = False
+    pending_since_ts: int = 0
     features: dict[str, Any] = field(default_factory=dict)
 
     @property
     def notional_at_entry(self) -> float:
         return self.initial_qty * self.entry_price
+
+    @property
+    def stop_moved_to_breakeven(self) -> bool:
+        if self.side is Side.LONG:
+            return self.stop_price >= self.entry_price
+        return self.stop_price <= self.entry_price
 
 
 @dataclass(frozen=True, slots=True)
@@ -151,9 +160,10 @@ class DecisionEngine:
         update = state.on_1m(bar)
         intents: list[OrderIntent] = []
 
-        if pos is not None and pos.is_open and pos.pending_protect:
+        if pos is not None and pos.is_open and pos.pending_protect and bar.ts_close_ms > pos.pending_since_ts:
             pos.pending_protect = False
-            intents.extend(self._protect_intent(pos, bar.ts_close_ms, move_stop=pos.pending_move_stop))
+            move = pos.pending_move_stop and self._breakeven_is_valid(pos, bar.close)
+            intents.extend(self._protect_intent(pos, bar.ts_close_ms, move_stop=move))
             pos.pending_move_stop = False
 
         if pos is not None and pos.is_open and not pos.exit_pending:
@@ -318,6 +328,7 @@ class DecisionEngine:
             mae_price=proposal.entry_price,
             mfe_price=proposal.entry_price,
             last_ts_ms=ts_ms,
+            last_price=proposal.entry_price,
             features={"legs": legs, "tp_count": len(tps)},
         )
         self.risk.on_position_opened(decision.risk_usdt)
@@ -345,10 +356,12 @@ class DecisionEngine:
                 return self._exit_intent(pos, bar, signal.reason)
 
         time_stop_bars = getattr(getattr(self.strategy, "config", None), "time_stop_bars", None)
-        if time_stop_bars is not None and not pos.tp1_filled:
-            # bars_held counts 1m bars; entry timeframe bars = 15x.
-            if pos.bars_held >= int(time_stop_bars) * (state.config.entry_tf_ms // 60_000):
-                return self._exit_intent(pos, bar, ExitReason.TIME_STOP)
+        if (
+            time_stop_bars is not None
+            and not pos.tp1_filled
+            and pos.bars_held >= int(time_stop_bars) * (state.config.entry_tf_ms // 60_000)
+        ):
+            return self._exit_intent(pos, bar, ExitReason.TIME_STOP)
         return None
 
     def _exit_intent(self, pos: ManagedPosition, bar: Bar, reason: ExitReason) -> OrderIntent:
@@ -430,6 +443,7 @@ class DecisionEngine:
                     pos.tp1_filled = True
                     pos.pending_protect = True
                     pos.pending_move_stop = True
+                    pos.pending_since_ts = event.ts_ms
                     return []
                 if event.kind == "EXIT":
                     pos.exit_pending = False
@@ -439,12 +453,13 @@ class DecisionEngine:
                 pos.tp1_filled = True
                 pos.pending_protect = True
                 pos.pending_move_stop = True
+                pos.pending_since_ts = event.ts_ms
             pos.tp2_filled = event.kind == "TP2"
             pos.exit_pending = True
             if event.reason is not None:
                 reason = event.reason
             elif event.kind == "STOP":
-                reason = ExitReason.STOP_BREAKEVEN if pos.tp1_filled else ExitReason.STOP
+                reason = ExitReason.STOP_BREAKEVEN if pos.stop_moved_to_breakeven else ExitReason.STOP
             elif event.kind == "TP2":
                 reason = ExitReason.TP2
             elif event.kind == "TP1":
@@ -455,6 +470,12 @@ class DecisionEngine:
             return []
         return intents
 
+    def _breakeven_is_valid(self, pos: ManagedPosition, price: float) -> bool:
+        spec = self.specs[pos.symbol]
+        cost = pos.entry_price * (2 * spec.taker_fee + 0.0004)
+        candidate = pos.entry_price + cost if pos.side is Side.LONG else pos.entry_price - cost
+        return candidate < price if pos.side is Side.LONG else candidate > price
+
     def _protect_intent(self, pos: ManagedPosition, ts_ms: int, *, move_stop: bool = False) -> list[OrderIntent]:
         pos.last_protect_ts = ts_ms
         stop = pos.stop_price
@@ -462,12 +483,16 @@ class DecisionEngine:
             # Breakeven plus round-trip costs after TP1.
             spec = self.specs[pos.symbol]
             cost = pos.entry_price * (2 * spec.taker_fee + 0.0004)
-            stop = pos.entry_price + cost if pos.side is Side.LONG else pos.entry_price - cost
+            candidate = pos.entry_price + cost if pos.side is Side.LONG else pos.entry_price - cost
             if pos.side is Side.LONG:
-                stop = max(stop, pos.stop_price)
+                candidate = max(candidate, pos.stop_price)
+                valid = candidate < pos.last_price if pos.last_price else True
             else:
-                stop = min(stop, pos.stop_price)
-            pos.stop_price = stop
+                candidate = min(candidate, pos.stop_price)
+                valid = candidate > pos.last_price if pos.last_price else True
+            if valid:
+                pos.stop_price = candidate
+            stop = pos.stop_price
         remaining_tps = tuple(tp for i, tp in enumerate((pos.tp1_price, pos.tp2_price)) if tp is not None and not (i == 0 and pos.tp1_filled))
         kinds = tuple(k for i, k in enumerate(("TP1", "TP2")) if not (i == 0 and pos.tp1_filled) and (pos.tp1_price if i == 0 else pos.tp2_price) is not None)
         return [
@@ -513,6 +538,9 @@ class DecisionEngine:
             net_pnl=net,
             net_r=net / risk,
             risk_usdt=pos.risk_usdt,
+            stop_price=pos.stop_price,
+            tp1_price=pos.tp1_price,
+            tp2_price=pos.tp2_price,
             mae_r=(pos.mae_price - pos.entry_price) * pos.side.sign * pos.initial_qty / risk,
             mfe_r=(pos.mfe_price - pos.entry_price) * pos.side.sign * pos.initial_qty / risk,
             tp1_filled=pos.tp1_filled,
@@ -574,6 +602,7 @@ class DecisionEngine:
 
     def _update_excursion(self, pos: ManagedPosition, bar: Bar) -> None:
         pos.bars_held += 1
+        pos.last_price = bar.close
         if pos.side is Side.LONG:
             pos.mae_price = min(pos.mae_price, bar.low)
             pos.mfe_price = max(pos.mfe_price, bar.high)
