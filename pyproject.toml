@@ -1,0 +1,64 @@
+[project]
+name = "tradebot"
+version = "0.1.0"
+description = "Binance USDT-M perpetual range-trading system: independent core, NautilusTrader backtests, evidence journal."
+readme = "README.md"
+requires-python = ">=3.13,<3.15"
+dependencies = [
+    # Backtester only. Pinned exactly; upgrades require a dedicated PR (see docs/nautilus_v2.md).
+    "nautilus_trader==2.0.0rc8",
+    "httpx>=0.28",
+    "polars>=1.20",
+    "duckdb>=1.2",
+    "pyyaml>=6.0",
+    "typer>=0.15",
+    "python-dotenv>=1.0",
+    "numpy>=2.0",
+    "scipy>=1.14",
+    "streamlit>=1.40",
+    "plotly>=5.24",
+    "tabulate>=0.9",
+]
+
+[project.scripts]
+bot = "bot.cli:app"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "hypothesis>=6.120",
+    "ruff>=0.8",
+    "basedpyright>=1.28",
+]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/bot"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+markers = [
+    "slow: long-running tests (real data, full backtests)",
+    "nautilus: requires the pinned NautilusTrader build",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["E501", "B008"]
+
+[tool.basedpyright]
+include = ["src", "tests"]
+pythonVersion = "3.13"
+typeCheckingMode = "basic"
+reportMissingImports = "warning"
+reportAttributeAccessIssue = "warning"
