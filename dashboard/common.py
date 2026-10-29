@@ -117,10 +117,14 @@ def sidebar(runs: pl.DataFrame) -> None:
             return
 
         sources = sorted(runs["source"].drop_nulls().unique().to_list())
+        if st.session_state.get("source_filter") not in ["All", *sources]:
+            st.session_state.pop("source_filter", None)
         source = st.selectbox("Source", ["All", *sources], key="source_filter")
         source_df = runs if source == "All" else runs.filter(pl.col("source") == source)
 
         versions = sorted(source_df["strategy_version"].drop_nulls().unique().to_list())
+        if st.session_state.get("version_filter") not in ["All", *versions]:
+            st.session_state.pop("version_filter", None)
         version = st.selectbox("Strategy version", ["All", *versions], key="version_filter")
         version_df = (
             source_df if version == "All" else source_df.filter(pl.col("strategy_version") == version)

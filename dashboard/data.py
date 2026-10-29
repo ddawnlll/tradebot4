@@ -814,6 +814,42 @@ def tag_summary(trades: pl.DataFrame, tags: pl.DataFrame | None = None) -> pl.Da
     )
 
 
+def pareto_curve(summary: pl.DataFrame, metric: str = "improvement_r") -> pl.DataFrame:
+    """Ordered tag impact with a cumulative share for a Pareto chart."""
+    schema = {
+        "tag": pl.Utf8,
+        "value": pl.Float64,
+        "frequency": pl.Int64,
+        "cumulative_pct": pl.Float64,
+        "cumulative_value": pl.Float64,
+    }
+    if summary.is_empty() or metric not in summary.columns:
+        return _empty(schema)
+    ordered = summary.sort(metric, descending=True)
+    total = float(ordered[metric].sum())
+    return ordered.select(
+        pl.col("tag"),
+        pl.col(metric).alias("value"),
+        pl.col("frequency"),
+        pl.col(metric).cum_sum().alias("cumulative_value"),
+    ).with_columns(
+        pl.when(total > 0)
+        .then(pl.col("cumulative_value") / total * 100.0)
+        .otherwise(0.0)
+        .alias("cumulative_pct")
+    ).select(list(schema))
+
+
+def trades_for_tag(
+    trades: pl.DataFrame, tags: pl.DataFrame, tag: str
+) -> pl.DataFrame:
+    """Trades carrying one tag."""
+    if trades.is_empty() or tags.is_empty():
+        return trades.head(0)
+    ids = tags.filter(pl.col("tag") == tag).select("trade_id").unique()
+    return trades.join(ids, on="trade_id", how="semi").sort("entry_ts_ms", descending=True)
+
+
 def calibration_by_decile(trades: pl.DataFrame, n_bins: int = 10) -> pl.DataFrame:
     """Bucket trades into setup-score deciles and summarize net R."""
     schema = {
@@ -985,6 +1021,119 @@ def breakdown_by(trades: pl.DataFrame, dimension: str) -> pl.DataFrame:
     )
 
 
+def long_short_summary(trades: pl.DataFrame) -> pl.DataFrame:
+    """Per-direction performance table."""
+    schema = {
+        "side": pl.Utf8,
+        "trades": pl.Int64,
+        "net_pnl": pl.Float64,
+        "total_r": pl.Float64,
+        "avg_r": pl.Float64,
+        "win_rate": pl.Float64,
+        "profit_factor": pl.Float64,
+        "tp1_rate": pl.Float64,
+        "stop_rate": pl.Float64,
+        "funding": pl.Float64,
+    }
+    if trades.is_empty():
+        return _empty(schema)
+    trades = _ensure_trade_columns(trades)
+    out = trades.filter(pl.col("side").is_not_null()).group_by("side").agg(
+        pl.len().alias("trades"),
+        pl.col("net_pnl").sum().alias("net_pnl"),
+        pl.col("net_r").sum().alias("total_r"),
+        pl.col("net_r").mean().alias("avg_r"),
+        pl.col("win").mean().alias("win_rate"),
+        pl.col("net_r").clip(lower_bound=0.0).sum().alias("_gain"),
+        (-pl.col("net_r").clip(upper_bound=0.0)).sum().alias("loss_abs"),
+        pl.col("tp1_filled").fill_null(False).mean().alias("tp1_rate"),
+        (pl.col("exit_reason") == "STOP").mean().alias("stop_rate"),
+        pl.col("funding").sum().alias("funding"),
+    )
+    return (
+        out.with_columns(
+            pl.when(pl.col("loss_abs") > 0)
+            .then(pl.col("_gain") / pl.col("loss_abs"))
+            .otherwise(None)
+            .alias("profit_factor")
+        )
+        .drop(["_gain", "loss_abs"])
+        .sort("net_pnl", descending=True)
+        .select(list(schema))
+    )
+
+
+def breakdown_by_tag(trades: pl.DataFrame, tags: pl.DataFrame | None = None) -> pl.DataFrame:
+    """Performance grouped by derived or explicit trade tag."""
+    schema = {
+        "key": pl.Utf8,
+        "sort_key": pl.Int64,
+        "trades": pl.Int64,
+        "net_pnl": pl.Float64,
+        "total_r": pl.Float64,
+        "avg_r": pl.Float64,
+        "median_r": pl.Float64,
+        "win_rate": pl.Float64,
+        "profit_factor": pl.Float64,
+    }
+    if trades.is_empty():
+        return _empty(schema)
+    trades = _ensure_trade_columns(trades)
+    if tags is None or tags.is_empty():
+        tags = derive_error_tags(trades)
+    if tags.is_empty():
+        return _empty(schema)
+    joined = tags.select(["trade_id", "tag"]).unique().join(
+        trades.select(["trade_id", "net_pnl", "net_r", "win"]), on="trade_id", how="inner"
+    )
+    if joined.is_empty():
+        return _empty(schema)
+    out = joined.group_by("tag").agg(
+        pl.len().alias("trades"),
+        pl.col("net_pnl").sum(),
+        pl.col("net_r").sum().alias("total_r"),
+        pl.col("net_r").mean().alias("avg_r"),
+        pl.col("net_r").median().alias("median_r"),
+        pl.col("win").mean().alias("win_rate"),
+        pl.col("net_r").clip(lower_bound=0.0).sum().alias("_gain"),
+        (-pl.col("net_r").clip(upper_bound=0.0)).sum().alias("loss_abs"),
+    )
+    return (
+        out.with_columns(
+            pl.col("tag").alias("key"),
+            pl.lit(0, dtype=pl.Int64).alias("sort_key"),
+            pl.when(pl.col("loss_abs") > 0)
+            .then(pl.col("_gain") / pl.col("loss_abs"))
+            .otherwise(None)
+            .alias("profit_factor"),
+        )
+        .drop(["_gain", "loss_abs", "tag"])
+        .sort("total_r")
+        .select(list(schema))
+    )
+
+
+def trade_returns(trades: pl.DataFrame) -> pl.DataFrame:
+    """Trade-ordered return series for the overview chart."""
+    schema = {
+        "entry_dt": pl.Datetime(time_unit="us", time_zone="UTC"),
+        "net_r": pl.Float64,
+        "net_pnl": pl.Float64,
+        "cumulative_r": pl.Float64,
+        "cumulative_pnl": pl.Float64,
+    }
+    if trades.is_empty():
+        return _empty(schema)
+    df = trades.sort("entry_ts_ms")
+    return df.select(
+        pl.col("entry_dt"),
+        pl.col("net_r"),
+        pl.col("net_pnl"),
+        pl.col("net_r").cum_sum().alias("cumulative_r"),
+        pl.col("net_pnl").cum_sum().alias("cumulative_pnl"),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Execution quality
 # ---------------------------------------------------------------------------
@@ -1074,6 +1223,27 @@ def execution_summary(execution: pl.DataFrame) -> pl.DataFrame:
         ("total_entry_fees", float(filled["entry_fee"].sum()), "USDT"),
     ]
     return pl.DataFrame(rows, schema=schema, orient="row")
+
+
+def execution_by_symbol(execution: pl.DataFrame) -> pl.DataFrame:
+    schema = {
+        "symbol": pl.Utf8,
+        "trades": pl.Int64,
+        "mean_slippage_bps": pl.Float64,
+        "total_slippage_usdt": pl.Float64,
+        "mean_entry_fee": pl.Float64,
+    }
+    if execution.is_empty():
+        return _empty(schema)
+    filled = execution.filter(pl.col("has_fill"))
+    if filled.is_empty():
+        return _empty(schema)
+    return filled.group_by("symbol").agg(
+        pl.len().alias("trades"),
+        pl.col("slippage_bps").mean().alias("mean_slippage_bps"),
+        pl.col("slippage_usdt").sum().alias("total_slippage_usdt"),
+        pl.col("entry_fee").mean().alias("mean_entry_fee"),
+    ).sort("total_slippage_usdt", descending=True).select(list(schema))
 
 
 def liquidity_mix(fills: pl.DataFrame) -> pl.DataFrame:
@@ -1190,6 +1360,26 @@ def order_health(
     return pl.DataFrame(rows, schema=schema, orient="row").with_columns(
         pl.col("value").cast(pl.Float64)
     )
+
+
+def reject_counts_table(metadata: Mapping[str, Any]) -> pl.DataFrame:
+    """Metadata reject_counts as a sorted frame."""
+    schema = {"reason": pl.Utf8, "count": pl.Int64, "share_pct": pl.Float64}
+    counts = metadata.get("reject_counts")
+    if not isinstance(counts, dict) or not counts:
+        return _empty(schema)
+    rows = [
+        {"reason": str(reason), "count": int(value)}
+        for reason, value in counts.items()
+        if isinstance(value, (int, float))
+    ]
+    if not rows:
+        return _empty(schema)
+    df = pl.DataFrame(rows, schema={"reason": pl.Utf8, "count": pl.Int64})
+    total = int(df["count"].sum())
+    return df.with_columns(
+        (pl.col("count") / total * 100.0).alias("share_pct")
+    ).sort("count", descending=True).select(list(schema))
 
 
 # ---------------------------------------------------------------------------
@@ -1441,6 +1631,7 @@ def hypothetical_outcomes(
     signals: pl.DataFrame,
     bars_by_symbol: Mapping[str, pl.DataFrame],
     *,
+    bars_by_ts: Mapping[Any, pl.DataFrame] | None = None,
     max_signals: int = 25,
     rr_target: float = 2.0,
     horizon_bars: int = 240,
@@ -1448,18 +1639,116 @@ def hypothetical_outcomes(
     """Run simulate_hypothetical for the highest-scoring rejected signals."""
     if signals.is_empty():
         return _empty(HYPOTHETICAL_SCHEMA)
-    candidates = (
-        signals.filter(pl.col("action") == "REJECT")
-        .sort(["score", "ts_ms"], descending=[True, False], nulls_last=True)
-        .head(int(max_signals))
-    )
+    candidates = hypothetical_candidates(signals, max_signals=max_signals)
     if candidates.is_empty():
         return _empty(HYPOTHETICAL_SCHEMA)
     frames: list[pl.DataFrame] = []
     for row in candidates.iter_rows(named=True):
-        bars = bars_by_symbol.get(row.get("symbol") or "", _empty(BAR_SCHEMA))
+        bars = None
+        if bars_by_ts is not None:
+            key = (int(row.get("ts_ms") or 0), row.get("symbol"))
+            bars = bars_by_ts.get(key)
+            if bars is None:
+                bars = bars_by_ts.get(int(row.get("ts_ms") or 0))
+        if bars is None:
+            bars = bars_by_symbol.get(row.get("symbol") or "", _empty(BAR_SCHEMA))
         frames.append(simulate_hypothetical(row, bars, rr_target=rr_target, horizon_bars=horizon_bars))
     return pl.concat(frames, how="vertical").select(list(HYPOTHETICAL_SCHEMA))
+
+
+def hypothetical_candidates(signals: pl.DataFrame, *, max_signals: int = 25) -> pl.DataFrame:
+    """Choose rejected signals that can actually be simulated.
+
+    Signals with recorded support and resistance are preferred because they can
+    be given an inferred side and a structural stop. If a run has none, the
+    highest-scored rejects are returned and the simulator reports NO_SIDE.
+    """
+    if signals.is_empty():
+        return signals
+    rejected = signals.filter(pl.col("action") == "REJECT")
+    if rejected.is_empty():
+        return rejected
+    with_levels = rejected.filter(
+        pl.col("support").is_not_null()
+        & pl.col("resistance").is_not_null()
+        & pl.col("score").is_not_null()
+    )
+    near_edge = _empty(SIGNAL_SCHEMA)
+    if not with_levels.is_empty():
+        close = (
+            with_levels["features"]
+            .cast(pl.Utf8, strict=False)
+            .str.json_path_match("$.close")
+            .cast(pl.Float64, strict=False)
+        )
+        width = with_levels["resistance"] - with_levels["support"]
+        near_edge = with_levels.filter(
+            (close <= with_levels["support"] + 0.25 * width)
+            | (close >= with_levels["resistance"] - 0.25 * width)
+        )
+    if not near_edge.is_empty():
+        pool = near_edge
+    elif not with_levels.is_empty():
+        pool = with_levels
+    else:
+        pool = rejected
+    return pool.sort(
+        ["score", "ts_ms"], descending=[True, False], nulls_last=True
+    ).head(int(max_signals))
+
+
+def hypothetical_summary(results: pl.DataFrame) -> pl.DataFrame:
+    schema = {
+        "outcome": pl.Utf8,
+        "count": pl.Int64,
+        "share_pct": pl.Float64,
+        "mean_r": pl.Float64,
+        "total_r": pl.Float64,
+    }
+    if results.is_empty():
+        return _empty(schema)
+    total = results.height
+    return (
+        results.group_by("outcome")
+        .agg(
+            pl.len().alias("count"),
+            pl.col("r_multiple").mean().alias("mean_r"),
+            pl.col("r_multiple").sum().alias("total_r"),
+        )
+        .with_columns((pl.col("count") / total * 100.0).alias("share_pct"))
+        .sort("count", descending=True)
+        .select(list(schema))
+    )
+
+
+def hypothetical_with_context(results: pl.DataFrame, signals: pl.DataFrame) -> pl.DataFrame:
+    schema = {
+        "signal_ts_ms": pl.Int64,
+        "symbol": pl.Utf8,
+        "reject_reason": pl.Utf8,
+        "score": pl.Float64,
+        "side": pl.Utf8,
+        "outcome": pl.Utf8,
+        "r_multiple": pl.Float64,
+        "bars_held": pl.Int64,
+        "entry_price": pl.Float64,
+        "stop_price": pl.Float64,
+        "target_price": pl.Float64,
+        "note": pl.Utf8,
+    }
+    if results.is_empty():
+        return _empty(schema)
+    context = signals.select(
+        pl.col("ts_ms").alias("signal_ts_ms"),
+        pl.col("symbol"),
+        pl.col("reject_reason"),
+        pl.col("score"),
+    ).unique(subset=["signal_ts_ms", "symbol"], keep="last")
+    return (
+        results.join(context, on=["signal_ts_ms", "symbol"], how="left")
+        .select(list(schema))
+        .sort("signal_ts_ms", descending=True)
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1525,7 +1814,8 @@ def load_bars(
     ]
     if additions:
         df = df.with_columns(additions)
-    return df.sort("ts_open_ms").unique(subset=["ts_open_ms"], keep="last")
+    df = df.sort("ts_open_ms").unique(subset=["ts_open_ms"], keep="last")
+    return _with_dt(df, "ts_open_ms", "dt")
 
 
 def resample_bars(bars: pl.DataFrame, every: str = "15m") -> pl.DataFrame:

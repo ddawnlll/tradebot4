@@ -6,9 +6,8 @@ from typing import Any
 
 import plotly.graph_objects as go
 import polars as pl
-from plotly.subplots import make_subplots
-
 from dashboard.common import COLORS, style_fig
+from plotly.subplots import make_subplots
 
 
 def candlestick(
@@ -44,15 +43,38 @@ def candlestick(
         price = level.get("price")
         if price is None:
             continue
-        figure.add_hline(
-            y=float(price),
-            line_color=level.get("color", COLORS["muted"]),
-            line_dash=level.get("dash", "dot"),
-            line_width=1.4,
-            annotation_text=level.get("label", ""),
-            annotation_position=level.get("position", "right"),
-            annotation_font_color=level.get("color", COLORS["muted"]),
-        )
+        color = level.get("color", COLORS["muted"])
+        start = level.get("start")
+        if start is not None:
+            end = level.get("end") or bars[time_col][-1]
+            figure.add_shape(
+                type="line",
+                x0=start,
+                x1=end,
+                y0=float(price),
+                y1=float(price),
+                line={"color": color, "dash": level.get("dash", "dot"), "width": 1.4},
+            )
+            figure.add_annotation(
+                x=start,
+                y=float(price),
+                text=level.get("label", ""),
+                showarrow=False,
+                xanchor="left",
+                yanchor="bottom",
+                font={"color": color, "size": 10},
+                bgcolor="rgba(11,15,20,0.65)",
+            )
+        else:
+            figure.add_hline(
+                y=float(price),
+                line_color=color,
+                line_dash=level.get("dash", "dot"),
+                line_width=1.4,
+                annotation_text=level.get("label", ""),
+                annotation_position=level.get("position", "right"),
+                annotation_font_color=color,
+            )
     for marker in markers or []:
         figure.add_trace(
             go.Scatter(
