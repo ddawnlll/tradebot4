@@ -96,8 +96,8 @@ schemas.
   stop winning ties inside a bar. Fees, funding, slippage and position limits are
   excluded. Results are explicitly labelled hypothetical.
 - **Percent units.** `metrics.json` uses percent points for `return_pct` and
-  fractions for `max_drawdown_pct`. The dashboard passes each through the correct
-  formatter; equity transforms store fractions.
+  `max_drawdown_pct`. The dashboard passes each through the correct formatter;
+  equity transforms store fractions.
 - **Stop-buffer sensitivity.** No sweep artifact exists in current runs. The
   page shows the configured `stop_buffer_atr` and a placeholder; it charts a
   `*sensitivity*.parquet` artifact or `metrics.json.stop_buffer_sensitivity`

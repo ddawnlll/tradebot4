@@ -37,7 +37,7 @@ if profit_factor is None:
     profit_factor = gains / losses if losses else None
 max_dd = metrics.get("max_drawdown_pct")
 if max_dd is None and not equity.is_empty():
-    max_dd = float(equity["drawdown_pct"].min())
+    max_dd = abs(float(equity["drawdown_pct"].min())) * 100.0
 
 common.metric_row(
     [
@@ -47,7 +47,7 @@ common.metric_row(
         ("Win rate", common.fmt_pct(win_rate), "net PnL > 0"),
         ("Expectancy", f"{common.fmt_num(expectancy)} R", "mean net R per trade"),
         ("Profit factor", common.fmt_num(profit_factor), "gross wins / gross losses"),
-        ("Max drawdown", common.fmt_pct(max_dd), "peak to trough"),
+        ("Max drawdown", common.fmt_pct(max_dd, already_pct=True), "peak to trough"),
         ("Sharpe", common.fmt_num(metrics.get("sharpe")), "per-run metric"),
     ]
 )
