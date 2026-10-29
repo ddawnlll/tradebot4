@@ -54,7 +54,7 @@ def compute_metrics(trades: pl.DataFrame, equity: pl.DataFrame, starting_balance
         out["final_equity"] = final
         out["return_pct"] = (final / starting_balance - 1.0) * 100.0
         dd = eq["drawdown_pct"].to_numpy()
-        out["max_drawdown_pct"] = float(np.nanmin(dd)) * -1.0 if len(dd) else 0.0
+        out["max_drawdown_pct"] = float(np.nanmin(dd)) * -100.0 if len(dd) else 0.0
         out["max_drawdown_usdt"] = float((eq["peak"] - eq["equity"]).max())
         out["sharpe"] = _sharpe(eq)
         out["sortino"] = _sortino(eq)

@@ -24,8 +24,9 @@ def read_events(db_path: Path) -> pl.DataFrame:
             "SELECT event_id, schema_version, source, event_type, ts_event_ms, ts_recorded_ms, symbol, signal_id,"
             " strategy_version, config_hash, run_id, payload FROM events",
             conn,
+            infer_schema_length=None,
         )
-        tags = pl.read_database("SELECT * FROM tags", conn)
+        tags = pl.read_database("SELECT * FROM tags", conn, infer_schema_length=None)
     finally:
         conn.close()
     if events.height and tags.height:
@@ -52,7 +53,7 @@ def export_all(paths: Paths | None = None) -> dict:
     for db in dbs:
         conn = sqlite3.connect(db)
         try:
-            t = pl.read_database("SELECT * FROM tags", conn)
+            t = pl.read_database("SELECT * FROM tags", conn, infer_schema_length=None)
             if t.height:
                 tags.append(t)
         finally:
