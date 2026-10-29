@@ -68,6 +68,8 @@ class ManagedPosition:
     is_open: bool = False
     exit_pending: bool = False
     last_protect_ts: int = 0
+    pending_protect: bool = False
+    pending_move_stop: bool = False
     features: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -94,6 +96,7 @@ class EngineConfig:
     max_positions: int = 1
     two_leg_tp: bool = True
     record_rejected_setups: bool = True
+    record_all_rejects: bool = False
     range_score: RangeScoreConfig = field(default_factory=RangeScoreConfig)
     scanner: ScannerConfig = field(default_factory=ScannerConfig)
     sizing: SizingConfig = field(default_factory=SizingConfig)
@@ -101,6 +104,7 @@ class EngineConfig:
     use_regime_filter: bool = True
     require_context: bool = True
     max_bar_volume_participation: float = 0.02
+    reentry_cooldown_ms: int = 900_000
 
 
 class DecisionEngine:
@@ -126,6 +130,7 @@ class DecisionEngine:
         self.last_snapshot: PortfolioSnapshot | None = None
         self.reject_counts: dict[str, int] = {}
         self.entry_bar_count = 0
+        self.last_exit_ts: dict[str, int] = {}
         self.data_last_ts_ms = 0
 
     # ------------------------------------------------------------------ input
@@ -145,6 +150,11 @@ class DecisionEngine:
 
         update = state.on_1m(bar)
         intents: list[OrderIntent] = []
+
+        if pos is not None and pos.is_open and pos.pending_protect:
+            pos.pending_protect = False
+            intents.extend(self._protect_intent(pos, bar.ts_close_ms, move_stop=pos.pending_move_stop))
+            pos.pending_move_stop = False
 
         if pos is not None and pos.is_open and not pos.exit_pending:
             exit_intent = self._check_position_exit(pos, bar, state)
@@ -173,6 +183,10 @@ class DecisionEngine:
         detail = ""
 
         if pos is None and self.risk.state is RiskState.ACTIVE:
+            last_exit = self.last_exit_ts.get(state.symbol)
+            if last_exit is not None and ts_ms - last_exit < self.config.reentry_cooldown_ms:
+                self.reject_counts[RejectReason.COOLDOWN.value] = self.reject_counts.get(RejectReason.COOLDOWN.value, 0) + 1
+                return []
             if regime is None and self.config.require_context:
                 reject, detail = RejectReason.MISSING_CONTEXT, "no regime"
             elif self.config.require_context and not state.ready:
@@ -202,7 +216,7 @@ class DecisionEngine:
                         self._record_signal(ts_ms, state, proposal.side, "ENTER", reject, setup, regime, detail, proposal)
                         return [intent]
 
-        if self.config.record_rejected_setups and (setup is not None or reject is not None):
+        if self.config.record_rejected_setups and (setup is not None or (self.config.record_all_rejects and reject is not None)):
             self._record_signal(ts_ms, state, None, "REJECT", reject, setup, regime, detail, proposal)
         if reject is not None:
             self.reject_counts[reject.value] = self.reject_counts.get(reject.value, 0) + 1
@@ -316,13 +330,19 @@ class DecisionEngine:
         if self.risk.state is RiskState.REDUCING:
             return self._exit_intent(pos, bar, ExitReason.RISK_HALT)
 
-        setup = pos.setup
-        if setup is not None:
-            atr = setup.atr
-            if pos.side is Side.LONG and bar.close < setup.support.lower - 0.35 * atr:
-                return self._exit_intent(pos, bar, ExitReason.BREAKOUT)
-            if pos.side is Side.SHORT and bar.close > setup.resistance.upper + 0.35 * atr:
-                return self._exit_intent(pos, bar, ExitReason.BREAKOUT)
+        view = self.position_view(pos.symbol)
+        if view is not None:
+            signal = self.strategy.evaluate_exit(
+                ExitContext(
+                    state=state,
+                    bar=bar,
+                    position=view,
+                    regime=state.context_regime,
+                    setup=pos.setup,
+                )
+            )
+            if signal is not None:
+                return self._exit_intent(pos, bar, signal.reason)
 
         time_stop_bars = getattr(getattr(self.strategy, "config", None), "time_stop_bars", None)
         if time_stop_bars is not None and not pos.tp1_filled:
@@ -408,13 +428,17 @@ class DecisionEngine:
                 # protective order family must be resized.
                 if event.kind == "TP1":
                     pos.tp1_filled = True
-                    return self._protect_intent(pos, event.ts_ms, move_stop=True)
+                    pos.pending_protect = True
+                    pos.pending_move_stop = True
+                    return []
                 if event.kind == "EXIT":
                     pos.exit_pending = False
                     return self._protect_intent(pos, event.ts_ms)
                 return []
             if event.kind == "TP1":
                 pos.tp1_filled = True
+                pos.pending_protect = True
+                pos.pending_move_stop = True
             pos.tp2_filled = event.kind == "TP2"
             pos.exit_pending = True
             if event.reason is not None:
@@ -503,6 +527,7 @@ class DecisionEngine:
         )
         self.closed_trades.append(trade)
         self.positions.pop(pos.symbol, None)
+        self.last_exit_ts[pos.symbol] = event.ts_ms
         self.risk.on_position_closed(pos.risk_usdt)
         self.risk.on_trade_closed(event.ts_ms, net)
         self._emit("trade", _trade_payload(trade))
@@ -512,6 +537,14 @@ class DecisionEngine:
         pos = self.positions.get(symbol)
         if pos is not None:
             pos.funding += amount
+
+    def force_close(self, symbol: str, ts_ms: int, price: float, reason: ExitReason = ExitReason.MANUAL) -> None:
+        """Close a position that the broker no longer has (reconciliation)."""
+        pos = self.positions.get(symbol)
+        if pos is not None and pos.is_open:
+            self.on_fill(FillEvent(ts_ms=ts_ms, symbol=symbol, kind="EXIT", price=price, qty=pos.qty, fee=0.0, reason=reason))
+        else:
+            self.on_entry_rejected(symbol)
 
     def on_entry_rejected(self, symbol: str) -> None:
         """Entry order never filled: release the pending slot and risk."""

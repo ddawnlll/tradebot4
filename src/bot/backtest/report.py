@@ -118,7 +118,7 @@ def _daily_returns(eq: pl.DataFrame) -> np.ndarray:
 
 def _sharpe(eq: pl.DataFrame) -> float | None:
     rets = _daily_returns(eq)
-    if len(rets) < 5 or rets.std(ddof=1) == 0:
+    if len(rets) < 5 or rets.std(ddof=1) <= 0:
         return None
     return float(rets.mean() / rets.std(ddof=1) * math.sqrt(365))
 
@@ -128,7 +128,7 @@ def _sortino(eq: pl.DataFrame) -> float | None:
     if len(rets) < 5:
         return None
     downside = rets[rets < 0]
-    if len(downside) == 0 or downside.std(ddof=1) == 0:
+    if len(downside) < 2 or downside.std(ddof=1) <= 0:
         return None
     return float(rets.mean() / downside.std(ddof=1) * math.sqrt(365))
 

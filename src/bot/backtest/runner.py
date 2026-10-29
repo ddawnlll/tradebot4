@@ -83,6 +83,8 @@ class BacktestConfig:
     venue: str = "BINANCE"
     use_funding: bool = True
     strict_errors: bool = True
+    journal: bool = True
+    enrich: bool = True
     range_score: RangeScoreConfig = field(default_factory=RangeScoreConfig)
     scanner: ScannerConfig = field(default_factory=ScannerConfig)
 
@@ -131,6 +133,9 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
     paths = paths or Paths()
     paths.ensure()
     t0 = time.perf_counter()
+    run_id = f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}_{cfg.strategy}_{config_hash(cfg.as_dict())}"
+    run_dir = out_dir or (paths.runs / run_id)
+    run_dir.mkdir(parents=True, exist_ok=True)
 
     specs_all = load_instruments(paths)
     if not cfg.symbols:
@@ -249,9 +254,6 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         raise RuntimeError(f"backtest produced {len(bridge.out.errors)} bridge errors: {first}")
 
     elapsed = time.perf_counter() - t0
-    run_id = f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}_{cfg.strategy}_{config_hash(cfg.as_dict())}"
-    run_dir = out_dir or (paths.runs / run_id)
-    run_dir.mkdir(parents=True, exist_ok=True)
 
     trades = _frame([_trade_row(t) for t in decision.closed_trades])
     fills = _frame(bridge.out.fills)
@@ -264,6 +266,12 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         if df.height:
             df = _flatten_structs(df)
             df.write_parquet(run_dir / f"{name}.parquet", compression="zstd")
+
+    from bot.journal.tagging import tag_trades
+
+    tags = tag_trades(trades)
+    if tags.height:
+        tags.write_parquet(run_dir / "tags.parquet", compression="zstd")
 
     meta = {
         "run_id": run_id,
@@ -283,6 +291,8 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         "funding_cache_total": sum(f["amount"] for f in cache_funding),
         "open_positions_at_end": len(decision.positions),
         "trades": trades.height,
+        "strategy_version": strategy.version,
+        "designation": "research",
         "entry_bars": decision.entry_bar_count,
         "positions_left": len(decision.positions),
     }
@@ -299,6 +309,24 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
     (run_dir / "metrics.json").write_text(json.dumps(metrics, indent=2, default=str))
     if abs(residual) > max(0.01, 0.005 * cfg.starting_balance):
         log.warning("account/trade reconciliation residual %.4f USDT", residual)
+
+    if cfg.journal:
+        _write_journal(run_dir, run_id, meta, signals, trades, fills, orders, equity, funding_events, tags)
+    if cfg.enrich:
+        from bot.journal.enrich import missed_opportunities, post_exit_drift
+
+        try:
+            drift = post_exit_drift(trades, paths)
+            if drift.height:
+                drift.write_parquet(run_dir / "post_exit_drift.parquet", compression="zstd")
+        except Exception as exc:  # pragma: no cover - enrichment is best effort
+            log.warning("post-exit drift failed: %s", exc)
+        try:
+            missed = missed_opportunities(signals, paths)
+            if missed.height:
+                missed.write_parquet(run_dir / "missed.parquet", compression="zstd")
+        except Exception as exc:  # pragma: no cover
+            log.warning("missed opportunity analysis failed: %s", exc)
 
     return BacktestResult(
         run_id=run_id,
@@ -394,6 +422,53 @@ def _trade_row(t) -> dict:
     }
 
 
+def _write_journal(run_dir, run_id, meta, signals, trades, fills, orders, equity, funding, tags) -> None:
+    from bot.journal.recorder import Journal
+
+    with Journal(run_dir / "journal.sqlite", source="backtest", run_id=run_id) as j:
+        j.record_run(
+            meta,
+            strategy=meta["config"]["strategy"],
+            strategy_version=meta.get("strategy_version", meta["config"]["strategy"]),
+            config_hash=meta["config_hash"],
+            designation=meta.get("designation", "research"),
+        )
+        for name, df, event_type, ts_col in (
+            ("signals", signals, "SIGNAL", "ts_ms"),
+            ("trades", trades, "TRADE", "exit_ts_ms"),
+            ("fills", fills, "FILL", "ts_ms"),
+            ("orders", orders, "ORDER", "ts_ms"),
+            ("equity", equity, "EQUITY", "ts_ms"),
+        ):
+            if df.height == 0:
+                continue
+            for row in df.iter_rows(named=True):
+                payload = _jsonable(row)
+                j.record(
+                    event_type,
+                    ts_event_ms=int(row.get(ts_col) or 0),
+                    payload=payload,
+                    symbol=row.get("symbol"),
+                    signal_id=row.get("signal_id"),
+                    strategy_version=row.get("strategy_version"),
+                    config_hash=meta["config_hash"],
+                )
+        for f in funding:
+            j.record("FUNDING", ts_event_ms=int(f["ts_ms"]), payload=_jsonable(f), symbol=f["symbol"])
+        for row in tags.iter_rows(named=True) if tags.height else []:
+            j.add_tag(row["trade_id"], row["tag"], rule_version=row.get("rule_version", ""), notes=row.get("notes", ""))
+
+
+def _jsonable(row: dict) -> dict:
+    out = {}
+    for k, v in row.items():
+        if isinstance(v, (str, int, float, bool)) or v is None:
+            out[k] = v
+        else:
+            out[k] = str(v)
+    return out
+
+
 def _with_funding(trade, events: list[dict]):
     from dataclasses import replace
 
@@ -456,3 +531,119 @@ def _to_yaml(payload: dict) -> str:
     import yaml
 
     return yaml.safe_dump(payload, sort_keys=True)
+
+
+def run_backtest_node(
+    cfg: BacktestConfig,
+    paths: Paths | None = None,
+    *,
+    catalog_path: Path | None = None,
+    chunk_size: int = 200_000,
+) -> dict:
+    """Catalog-driven run through `BacktestNode` (the high-level v2 API).
+
+    Kept deliberately small: it proves the same bridge and decision engine
+    produce the same result when data comes from a Nautilus catalog. Funding
+    is not part of the catalog in the pinned release, so this path is used for
+    golden regression tests, not for performance claims.
+    """
+    from nautilus_trader.backtest import (
+        BacktestDataConfig,
+        BacktestNode,
+        BacktestRunConfig,
+        BacktestVenueConfig,
+    )
+    from nautilus_trader.common import LogLevel
+    from nautilus_trader.config import LoggerConfig
+    from nautilus_trader.model import BarAggregation, BarSpecification, BookType, InstrumentId, NautilusDataType, PriceType
+    from nautilus_trader.persistence import DataCatalogConfig
+
+    paths = paths or Paths()
+    catalog_path = catalog_path or paths.catalog
+    specs_all = load_instruments(paths)
+    specs = {s: _with_fees(specs_all[s], cfg) for s in cfg.symbols if s in specs_all}
+    strategy = build_strategy(cfg.strategy, cfg.strategy_params)
+    decision = DecisionEngine(
+        strategy,
+        specs,
+        EngineConfig(
+            strategy_name=cfg.strategy,
+            strategy_version=strategy.version,
+            max_positions=cfg.max_positions,
+            two_leg_tp=cfg.two_leg_tp,
+            range_score=cfg.range_score,
+            scanner=cfg.scanner,
+            sizing=SizingConfig(risk_fraction=cfg.risk_fraction, max_leverage=cfg.leverage),
+        ),
+        RiskPolicy(RiskPolicyConfig(max_positions=cfg.max_positions, risk_fraction=cfg.risk_fraction)),
+    )
+    usdt = Currency.from_str("USDT")
+    venue = BacktestVenueConfig(
+        name=cfg.venue,
+        oms_type=OmsType.NETTING,
+        account_type=AccountType.MARGIN,
+        book_type=BookType.L1_MBP,
+        starting_balances=[f"{cfg.starting_balance:g} USDT"],
+        default_leverage=Decimal(str(cfg.leverage)),
+        bar_execution=True,
+        bar_adaptive_high_low_ordering=cfg.adaptive_high_low,
+        fee_model=MakerTakerFeeModel(maker_rate=Decimal(str(cfg.maker_fee)), taker_rate=Decimal(str(cfg.taker_fee))),
+        fill_model=DefaultFillModel(
+            prob_fill_on_limit=cfg.prob_fill_on_limit, prob_slippage=cfg.prob_slippage, random_seed=cfg.random_seed
+        ),
+        use_reduce_only=True,
+        support_contingent_orders=False,
+    )
+    spec = BarSpecification(1, BarAggregation.MINUTE, PriceType.LAST)
+    data = [
+        BacktestDataConfig(
+            data_type=NautilusDataType.Bar,
+            catalog=DataCatalogConfig(path=str(catalog_path)),
+            instrument_id=InstrumentId.from_str(nautilus_id(s, cfg.venue)),
+            bar_spec=spec,
+            start_time=cfg.start_ms * MS,
+            end_time=cfg.end_ms * MS,
+        )
+        for s in specs
+    ]
+    run_config = BacktestRunConfig(
+        venues=[venue],
+        data=data,
+        engine=BacktestEngineConfig(
+            trader_id=TraderId.from_str("BT-NODE"),
+            bypass_logging=True,
+            logging=LoggerConfig(stdout_level=LogLevel.ERROR),
+        ),
+        start=cfg.start_ms * MS,
+        end=cfg.end_ms * MS,
+        chunk_size=chunk_size,
+        raise_exception=True,
+    )
+    node = BacktestNode([run_config])
+    try:
+        node.build()
+        bridge_config = BridgeConfig(
+            bar_types=[f"{nautilus_id(s, cfg.venue)}-1-MINUTE-LAST-EXTERNAL" for s in specs],
+            venue=cfg.venue,
+            bar_interval_ms=cfg.bar_interval_ms,
+        )
+        bridge_config.engine = decision
+        bridge = BacktestBridge(config=bridge_config)
+        node.add_strategy(run_config.id, bridge)
+        results = node.run()
+    finally:
+        node.dispose()
+    last_prices = {s: st.last_1m.close for s, st in decision.states.items() if st.last_1m is not None}
+    decision.finalize(cfg.end_ms, last_prices)
+    from bot.backtest.report import compute_metrics
+
+    trades = _frame([_trade_row(t) for t in decision.closed_trades])
+    metrics = compute_metrics(trades, _frame(bridge.out.equity), cfg.starting_balance)
+    return {
+        "trades": trades,
+        "metrics": metrics,
+        "signals": _frame(bridge.out.signals),
+        "fills": _frame(bridge.out.fills),
+        "node_results": results,
+        "errors": bridge.out.errors,
+    }

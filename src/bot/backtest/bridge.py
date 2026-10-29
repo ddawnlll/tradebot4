@@ -150,9 +150,12 @@ class BacktestBridge(Strategy):
     def _submit_protection(self, intent: OrderIntent) -> None:
         inst = self._instrument(intent.symbol)
         self._cancel_protective(intent.symbol)
-        qty = inst.make_qty(intent.quantity, round_down=True)
-        if qty.as_double() <= 0:
-            self._error(intent.ts_ms, intent.symbol, "protect_zero_qty", "")
+        try:
+            qty = inst.make_qty(intent.quantity, round_down=True)
+        except ValueError:
+            qty = None
+        if qty is None or qty.as_double() <= 0:
+            self._engine.on_entry_rejected(intent.symbol)
             return
         stop_cid = self._next_id("S")
         stop = self.order_factory.stop_market(
@@ -198,8 +201,12 @@ class BacktestBridge(Strategy):
     def _submit_exit(self, intent: OrderIntent) -> None:
         inst = self._instrument(intent.symbol)
         self._cancel_protective(intent.symbol)
-        qty = inst.make_qty(intent.quantity, round_down=True)
-        if qty.as_double() <= 0:
+        try:
+            qty = inst.make_qty(intent.quantity, round_down=True)
+        except ValueError:
+            qty = None
+        if qty is None or qty.as_double() <= 0:
+            self._engine.on_entry_rejected(intent.symbol)
             return
         cid = self._next_id("X")
         order = self.order_factory.market(
@@ -292,6 +299,14 @@ class BacktestBridge(Strategy):
         if meta.kind == "ENTRY":
             self._engine.on_entry_rejected(symbol)
         elif meta.kind == "STOP":
+            net = self.portfolio.net_position(event.instrument_id)
+            if net is not None and float(net) == 0.0:
+                # Position already flat: the stop lost a race with a closing
+                # fill. Reconcile the core state, do not flatten again.
+                state = self._engine.states.get(symbol)
+                px = state.last_1m.close if state and state.last_1m else 0.0
+                self._engine.force_close(symbol, ts_ms, px)
+                return
             # No stop coverage is a critical condition: flatten immediately.
             self._error(ts_ms, symbol, "missing_stop", "protective stop rejected")
             pos = self._engine.positions.get(symbol)

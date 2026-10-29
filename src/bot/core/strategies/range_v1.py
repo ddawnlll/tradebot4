@@ -21,7 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from bot.core.models import RejectReason, RegimeState, Side
+from bot.core.models import ExitReason, RejectReason, RegimeState, Side
 from bot.core.strategies.base import (
     EntryContext,
     EntryDecision,
@@ -35,6 +35,7 @@ from bot.core.strategies.base import (
 @dataclass(frozen=True, slots=True)
 class RangeV1Config:
     min_regime_confidence: float = 0.15
+    require_range_regime: bool = True
     max_breakout_risk: float = 0.70
     max_squeeze_risk: float = 0.85
     max_body_atr: float = 0.90
@@ -48,6 +49,7 @@ class RangeV1Config:
     entry_tf_bars_min: int = 60
     breakout_exit_atr: float = 0.35
     breakout_exit_vol_mult: float = 2.5
+    enable_breakout_exit: bool = True
     time_stop_bars: int = 32  # 8 hours on 15m decisions, measured in 15m bars
     weights: dict[str, float] = field(default_factory=dict)
 
@@ -65,7 +67,7 @@ class RangeV1Strategy(StrategyBase):
     def evaluate_entry(self, ctx: EntryContext) -> EntryDecision:
         c = self.config
         regime = ctx.regime
-        if regime.state is not RegimeState.RANGE:
+        if c.require_range_regime and regime.state is not RegimeState.RANGE:
             return EntryDecision(None, RejectReason.REGIME, regime.state.value)
         if regime.confidence < c.min_regime_confidence:
             return EntryDecision(None, RejectReason.REGIME, "low regime confidence")
@@ -190,6 +192,16 @@ class RangeV1Strategy(StrategyBase):
     # ------------------------------------------------------------------- exit
     def evaluate_exit(self, ctx: ExitContext) -> ExitSignal | None:
         """Signal-based exits. Native stop/TP orders are handled by the adapter."""
+        if not self.config.enable_breakout_exit or ctx.setup is None:
+            return None
+        setup = ctx.setup
+        atr = setup.atr
+        if atr <= 0:
+            return None
+        if ctx.position.side is Side.LONG and ctx.bar.close < setup.support.lower - self.config.breakout_exit_atr * atr:
+            return ExitSignal(ExitReason.BREAKOUT, "close below support zone")
+        if ctx.position.side is Side.SHORT and ctx.bar.close > setup.resistance.upper + self.config.breakout_exit_atr * atr:
+            return ExitSignal(ExitReason.BREAKOUT, "close above resistance zone")
         return None
 
 

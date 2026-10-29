@@ -41,6 +41,7 @@ class ExitContext:
     bar: Bar
     position: PositionView
     regime: MarketRegime | None
+    setup: RangeSetup | None = None
 
 
 @dataclass(slots=True)
