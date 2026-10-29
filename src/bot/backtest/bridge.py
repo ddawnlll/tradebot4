@@ -34,6 +34,14 @@ from bot.core.models import OrderIntent, PortfolioSnapshot, Side
 MS = 1_000_000  # ns per ms
 
 
+def _clamp_intent_quantity(intent: OrderIntent, net_qty: float) -> OrderIntent:
+    if intent.quantity <= net_qty + 1e-12:
+        return intent
+    from dataclasses import replace
+
+    return replace(intent, quantity=net_qty, legs=())
+
+
 class BridgeConfig(StrategyConfig):
     """StrategyConfig subclass; keyword-only custom fields per v2 rules."""
 
@@ -150,6 +158,17 @@ class BacktestBridge(Strategy):
         inst = self._instrument(intent.symbol)
         state = self._engine.states.get(intent.symbol)
         last_px = state.last_1m.close if state and state.last_1m else None
+        # The broker position is authoritative. If a fill landed while we were
+        # replacing orders, the intent size can exceed the live position and a
+        # reduce-only TP would be rejected.
+        net = self.portfolio.net_position(inst.id)
+        if net is not None:
+            net_qty = abs(float(net))
+            if net_qty <= 1e-12:
+                px = last_px if last_px is not None else self._engine.positions[intent.symbol].entry_price
+                self._engine.force_close(intent.symbol, intent.ts_ms, px)
+                return
+            intent = _clamp_intent_quantity(intent, net_qty)
         long_position = intent.side is Side.SHORT  # closing side SELL means long
         if last_px is not None:
             invalid = (long_position and intent.stop_price >= last_px) or (
@@ -317,7 +336,15 @@ class BacktestBridge(Strategy):
         symbol = self._core_symbol(event.instrument_id)
         ts_ms = event.ts_event // MS
         reason = getattr(event, "reason", "")
-        self._error(ts_ms, symbol, f"order_{status.lower()}", f"{reason}")
+        pos_dbg = self._engine.positions.get(symbol)
+        net_dbg = self.portfolio.net_position(event.instrument_id)
+        self._error(
+            ts_ms,
+            symbol,
+            f"order_{status.lower()}",
+            f"{reason} | kind={meta.kind if meta else '?'} req={meta.requested_qty if meta else '?'}"
+            f" pos={pos_dbg.qty if pos_dbg else None} net={net_dbg}",
+        )
         if meta is None:
             return
         if meta.kind == "ENTRY":

@@ -160,17 +160,27 @@ class DecisionEngine:
         update = state.on_1m(bar)
         intents: list[OrderIntent] = []
 
-        if pos is not None and pos.is_open and pos.pending_protect and bar.ts_close_ms > pos.pending_since_ts:
+        # An exit supersedes protection maintenance. Emitting both in one bar
+        # can let the market exit settle before the protective orders, which
+        # are then rejected as reduce-only against a flat position.
+        if pos is not None and pos.is_open and not pos.exit_pending:
+            exit_intent = self._check_position_exit(pos, bar, state)
+            if exit_intent is not None:
+                pos.pending_protect = False
+                pos.pending_move_stop = False
+                return [exit_intent]
+
+        if (
+            pos is not None
+            and pos.is_open
+            and not pos.exit_pending
+            and pos.pending_protect
+            and bar.ts_close_ms > pos.pending_since_ts
+        ):
             pos.pending_protect = False
             move = pos.pending_move_stop and self._breakeven_is_valid(pos, bar.close)
             intents.extend(self._protect_intent(pos, bar.ts_close_ms, move_stop=move))
             pos.pending_move_stop = False
-
-        if pos is not None and pos.is_open and not pos.exit_pending:
-            exit_intent = self._check_position_exit(pos, bar, state)
-            if exit_intent is not None:
-                intents.append(exit_intent)
-                return intents
 
         if update.entry_bar is not None and update.entry_complete:
             self.entry_bar_count += 1
@@ -446,8 +456,14 @@ class DecisionEngine:
                     pos.pending_since_ts = event.ts_ms
                     return []
                 if event.kind == "EXIT":
+                    # The exit order is still working and normally fills the
+                    # remainder in the same batch. Protect on the next bar only
+                    # if it did not, instead of racing it with new orders.
                     pos.exit_pending = False
-                    return self._protect_intent(pos, event.ts_ms)
+                    pos.pending_protect = True
+                    pos.pending_move_stop = False
+                    pos.pending_since_ts = event.ts_ms
+                    return []
                 return []
             if event.kind == "TP1":
                 pos.tp1_filled = True
