@@ -114,7 +114,10 @@ class RangeV1Strategy(StrategyBase):
         bar = ctx.bar
         support = setup.support
         touched = bar.low <= support.upper
-        inside = bar.close >= support.center and bar.close < setup.resistance.lower
+        # The close must be back *inside the zone*, not merely above its mid.
+        # Closing far above the zone would enter near the range midpoint and
+        # leave almost no room to TP1 relative to the stop.
+        inside = support.lower <= bar.close <= support.upper
         rejection = bar.lower_wick >= self.config.rejection_wick_frac * max(bar.range, 1e-12)
         if not (touched and inside and rejection):
             return False
@@ -128,7 +131,7 @@ class RangeV1Strategy(StrategyBase):
         bar = ctx.bar
         res = setup.resistance
         touched = bar.high >= res.lower
-        inside = bar.close <= res.center and bar.close > setup.support.upper
+        inside = res.lower <= bar.close <= res.upper
         rejection = bar.upper_wick >= self.config.rejection_wick_frac * max(bar.range, 1e-12)
         if not (touched and inside and rejection):
             return False
