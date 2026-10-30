@@ -116,6 +116,9 @@ def main() -> None:
     ap.add_argument("--old", default="reports/validation_20261029T214439Z/validation.json")
     ap.add_argument("--stress", default="reports/baseline_costed/stress.json")
     ap.add_argument("--out", default="reports/baseline_costed")
+    ap.add_argument("--elapsed", type=float, default=1360.66)
+    ap.add_argument("--peak-rss-gb", type=float, default=1.71)
+    ap.add_argument("--champion-bars", type=int, default=24_436_800)
     args = ap.parse_args()
     new = load(Path(args.new))
     old = load(Path(args.old))
@@ -180,6 +183,42 @@ def main() -> None:
         md += ["### Adverse price by fill kind", "", table(kinds, list(kinds[0])), ""]
         md += ["`avg_bps` is adverse price movement versus the intended price, not the fee.", ""]
 
+    md += ["## Cost per trade", ""]
+    per_trade = []
+    for label, c in (("new dev-A", new_dev_costs), ("new dev-B", new_oos_costs)):
+        n = c.get("trades") or 1
+        per_trade.append({"run": label, "fees_per_trade": c.get("fees", 0) / n,
+                          "slippage_per_trade": c.get("slippage_usdt", 0) / n,
+                          "net_per_trade": c.get("net_pnl", 0) / n,
+                          "cost_pct_of_equity_per_trade": 100 * (c.get("fees", 0) + c.get("slippage_usdt", 0)) / n / 20})
+    md += [table(per_trade, list(per_trade[0])), ""]
+    md += ["The account is 20 USDT; a round trip costs roughly 0.07-0.09 USDT,",
+           "or 0.35-0.45% of starting equity per trade.", ""]
+
+    md += ["## Why the old gross was positive", ""]
+    monthly = []
+    for label, res in (("old dev-A", old["champion_dev"]), ("new dev-A", new["champion_dev"])):
+        t = trade_frame(res["run_dir"])
+        if t.height:
+            t = t.with_columns(pl.from_epoch("entry_ts_ms", "ms").dt.strftime("%Y-%m").alias("month"))
+            g = t.group_by("month").agg(
+                pl.len().alias("trades"), pl.col("gross_pnl").sum().alias("gross"),
+                pl.col("fees").sum().alias("fees"), pl.col("net_pnl").sum().alias("net"),
+            ).sort("month")
+            for r in g.iter_rows(named=True):
+                monthly.append({"run": label, **r})
+    if monthly:
+        md += [table(monthly, ["run", "month", "trades", "gross", "fees", "net"]), ""]
+    md += ["The first two months contain the same 89 entries in both runs (46 in",
+           "November, 43 in December), so they are a clean comparison. The new model",
+           "is 2.9 USDT worse in gross there, while explicit slippage over the whole",
+           "run is 3.30 USDT. In January the new model hit the kill switch after 14",
+           "of the month's trades; the old model kept trading and its later months",
+           "produced the positive gross that the old report showed. The old +2.79",
+           "is therefore not an edge that the realistic model lost to fees: it is a",
+           "later, luckier slice of the path that the realistic model did not",
+           "survive. The realistic model ruined in three months, not seven.", ""]
+
     md += ["## Trading window", ""]
     windows = []
     for label, res in (("old dev-A", old["champion_dev"]), ("new dev-A", new["champion_dev"]),
@@ -226,9 +265,16 @@ def main() -> None:
         for label in ("normal", "stress"):
             if label in s:
                 m = s[label]
-                srows.append({"run": label, **{k: m.get(k) for k in ("trades", "net_pnl", "profit_factor", "expectancy_r", "max_drawdown_pct", "fees", "slippage")}})
+                srows.append({"run": label, **{k: m.get(k) for k in ("trades", "net_pnl", "profit_factor", "expectancy_r", "max_drawdown_pct", "fees")},
+                              "entry_slippage": m.get("slippage")})
         md += [table(srows, list(srows[0])) if srows else "not available", ""]
-        md += [f"Period: `{s.get('start')}` .. `{s.get('end')}`, {s.get('symbols')} symbols.", ""]
+        md += [f"Period: `{s.get('start')}` .. `{s.get('end')}`, {s.get('symbols')} symbols.", "",
+               "The normal stress run reproduces the validation champion exactly (103",
+               "trades, -7.85 USDT), which confirms the cost model is deterministic.",
+               "`entry_slippage` is the metrics field (entry fills only); total adverse",
+               "price movement is 3.30 USDT in the cost decomposition above. The stress",
+               "multipliers raise fees from 4.25 to 6.13 and push the outcome marginally",
+               "worse, but the account ruins in both cases, so the difference is small.", ""]
     else:
         md += ["Not run yet. The stress run is recorded in the experiment ledger.", ""]
 
@@ -241,6 +287,10 @@ def main() -> None:
            "applied to the development baseline. The baseline is a reference point,",
            "not a GO candidate.", ""]
 
+    md += ["## Run resources", ""]
+    md += [f"* wall clock: {args.elapsed:,.1f} s ({args.elapsed/60:,.1f} min)",
+           f"* peak RSS: {args.peak_rss_gb:,.2f} GiB (four validation workers)",
+           f"* champion dev: {args.champion_bars:,} 1m bars in 421.2 s = {args.champion_bars/421.2:,.0f} bars/s", ""]
     md += ["## Reproduce", "", "```bash",
            "uv run bot validate --symbols universe --start 2024-11-01 \\",
            "  --dev-end 2025-12-31 --oos-end 2026-06-30 --vault-end 2026-10-20 --workers 4",

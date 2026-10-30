@@ -95,6 +95,7 @@ class BacktestConfig:
     require_funding_coverage: bool = True
     strict_errors: bool = True
     journal: bool = True
+    keep_journal_db: bool = False
     enrich: bool = True
     range_score: RangeScoreConfig = field(default_factory=RangeScoreConfig)
     scanner: ScannerConfig = field(default_factory=ScannerConfig)
@@ -126,6 +127,7 @@ class BacktestConfig:
             "kill_switch_drawdown_frac": self.kill_switch_drawdown_frac,
             "bar_interval_ms": self.bar_interval_ms,
             "adaptive_high_low": self.adaptive_high_low,
+            "keep_journal_db": self.keep_journal_db,
             "entry_tf_ms": self.entry_tf_ms,
             "context_tf_ms": self.context_tf_ms,
             "higher_tf_ms": self.higher_tf_ms,
@@ -364,6 +366,12 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
 
     if cfg.journal:
         _write_journal(run_dir, run_id, meta, signals, trades, fills, orders, equity, funding_events, tags)
+        if not cfg.keep_journal_db:
+            # The SQLite file is a transient write buffer; the parquet files
+            # and partitions are the durable journal. Keeping a 700 MB SQLite
+            # per campaign run is the single largest output in the repo.
+            for suffix in ("", "-wal", "-shm"):
+                (run_dir / f"journal.sqlite{suffix}").unlink(missing_ok=True)
     if cfg.enrich:
         from bot.journal.enrich import missed_opportunities, post_exit_drift
 

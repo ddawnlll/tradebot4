@@ -34,3 +34,12 @@ reported separately.
 1h bars inside a 4h range give few setups; the 100-trade floor may fail. The
 time stop in bars changes wall-clock holding time, so h3a and h3b separate
 "fewer, larger decisions" from "same holding time".
+
+## Result (2026-10-30)
+
+Rejected. h3a (32-bar time stop): 88 trades, PF 0.794, expectancy -0.0811R.
+h3b (8-bar time stop): 89 trades, PF 0.884, expectancy -0.0391R, two positive
+folds, 90% CI [-0.1543, +0.0787], stress PF 0.795. Both are below the
+100-trade floor and the PF gate. The 1h cadence reduces frequency without
+creating an edge; the shorter time stop reduces the loss but does not make
+the strategy viable.

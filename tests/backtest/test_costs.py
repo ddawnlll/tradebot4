@@ -104,3 +104,20 @@ def test_cost_model_changes_fills_fees_and_reconciles() -> None:
         rate = 0.0005 if row["liquidity"] == "TAKER" else 0.0002
         assert row["fee"] == pytest.approx(row["price"] * row["qty"] * rate, rel=1e-6, abs=1e-8)
     assert abs(result.metrics["equity_residual_usdt"]) < 1e-6
+
+
+def test_journal_database_is_transient() -> None:
+    start = int(datetime(2024, 11, 1, tzinfo=UTC).timestamp() * 1000)
+    end = int(datetime(2024, 12, 1, tzinfo=UTC).timestamp() * 1000)
+    result = run_backtest(
+        BacktestConfig(
+            symbols=["WIFUSDT"],
+            start_ms=start,
+            end_ms=end,
+            use_funding=False,
+            journal=True,
+            enrich=False,
+        )
+    )
+    assert (result.run_dir / "signals").exists()
+    assert not (result.run_dir / "journal.sqlite").exists()

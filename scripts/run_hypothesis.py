@@ -45,10 +45,10 @@ BASE = {
 
 CONFIGS: dict[str, list[dict]] = {
     "H1": [
-        {"id": "h1a", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 4}, "label": "N=4 edge"},
-        {"id": "h1b", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 2}, "label": "N=2 edge"},
-        {"id": "h1c", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 8}, "label": "N=8 edge"},
-        {"id": "h1d", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 4, "passive_entry_price": "centre"}, "label": "N=4 centre"},
+        {"id": "h1a", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 4}, "strict_errors": False, "label": "N=4 edge"},
+        {"id": "h1b", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 2}, "strict_errors": False, "label": "N=2 edge"},
+        {"id": "h1c", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 8}, "strict_errors": False, "label": "N=8 edge"},
+        {"id": "h1d", "strategy": "range_v2_passive", "params": {"passive_entry_bars": 4, "passive_entry_price": "centre"}, "strict_errors": False, "label": "N=4 centre"},
     ],
     "H2": [
         {"id": "h2a", "strategy": "range_v1", "params": {}, "ratio": 4.0, "label": "ratio 4"},
@@ -65,7 +65,11 @@ CONFIGS: dict[str, list[dict]] = {
 RANDOM = {"id": "random", "strategy": "random_entry", "params": {"entry_probability": 0.02, "seed": 42}}
 
 
-def _summary(trades: pl.DataFrame, signals: pl.DataFrame) -> dict:
+def _summary(trades: pl.DataFrame, signals: pl.DataFrame, errors: list[dict] | None = None) -> dict:
+    errors = errors or []
+    rejected_entries = sum(
+        1 for e in errors if "kind=ENTRY" in (e.get("detail") or "") and e.get("kind") in ("order_rejected", "order_denied")
+    )
     if trades.height == 0:
         enter = signals.filter(pl.col("action") == "ENTER").height if signals.height else 0
         cancel = signals.filter(pl.col("action") == "CANCEL").height if signals.height else 0
@@ -73,7 +77,8 @@ def _summary(trades: pl.DataFrame, signals: pl.DataFrame) -> dict:
             "trades": 0, "net_pnl": 0.0, "gross_pnl": 0.0, "fees": 0.0, "funding": 0.0,
             "profit_factor": None, "expectancy_r": None, "win_rate": None,
             "ci90": [None, None], "r_values": [], "net_values": [],
-            "enter_signals": enter, "cancel_signals": cancel, "fill_rate": 0.0 if enter else None,
+            "enter_signals": enter, "cancel_signals": cancel, "rejected_entries": rejected_entries,
+            "fill_rate": 0.0 if enter else None,
         }
     r = trades["net_r"].to_numpy().astype(float)
     net = trades["net_pnl"].to_numpy().astype(float)
@@ -96,6 +101,7 @@ def _summary(trades: pl.DataFrame, signals: pl.DataFrame) -> dict:
         "net_values": [float(x) for x in net],
         "enter_signals": int(enter),
         "cancel_signals": int(cancel),
+        "rejected_entries": rejected_entries,
         "fill_rate": float(trades.height / enter) if enter else None,
     }
 
@@ -111,6 +117,7 @@ def _run(task: dict) -> dict:
         end_ms=fold[3],
         journal=False,
         enrich=False,
+        strict_errors=spec.get("strict_errors", True),
         commission_multiplier=task.get("commission_multiplier", 1.0),
         slippage_multiplier=task.get("slippage_multiplier", 1.0),
         entry_tf_ms=spec.get("entry_tf_ms", 900_000),
@@ -126,7 +133,7 @@ def _run(task: dict) -> dict:
         "fold": fold[0],
         "run_id": res.run_id,
         "run_dir": str(res.run_dir),
-        "summary": _summary(res.trades, res.signals),
+        "summary": _summary(res.trades, res.signals, res.errors),
         "cost": {"commission_multiplier": cfg.commission_multiplier, "slippage_multiplier": cfg.slippage_multiplier},
     }
 
@@ -142,6 +149,7 @@ def _aggregate(rows: list[dict]) -> dict:
                 "fold_net": [0.0 for _ in rows], "fees": 0.0, "funding": 0.0, "max_dd_usdt": 0.0,
                 "enter_signals": sum(x["summary"]["enter_signals"] for x in rows),
                 "cancel_signals": sum(x["summary"]["cancel_signals"] for x in rows),
+                "rejected_entries": sum(x["summary"].get("rejected_entries", 0) for x in rows),
                 "fill_rate": None}
     mean, lo, hi = bootstrap_mean_ci(r, alpha=0.10)
     wins = float(net[net > 0].sum())
@@ -164,6 +172,7 @@ def _aggregate(rows: list[dict]) -> dict:
         "max_dd_usdt": dd,
         "enter_signals": int(sum(x["summary"]["enter_signals"] for x in rows)),
         "cancel_signals": int(sum(x["summary"]["cancel_signals"] for x in rows)),
+        "rejected_entries": int(sum(x["summary"].get("rejected_entries", 0) for x in rows)),
         "fill_rate": (sum(x["summary"]["trades"] for x in rows) / sum(x["summary"]["enter_signals"] for x in rows))
         if sum(x["summary"]["enter_signals"] for x in rows) else None,
     }
@@ -218,23 +227,36 @@ def main() -> None:
     ap.add_argument("--hypothesis", default="all", choices=["all", "H1", "H2", "H3"])
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--symbols", type=int, default=20)
+    ap.add_argument("--merge", action="store_true")
+    ap.add_argument("--skip-reference", action="store_true")
     args = ap.parse_args()
     paths = Paths()
     universe = sorted(paths.universe.glob("universe_*.parquet"))[-1]
     symbols = pl.read_parquet(universe).filter(pl.col("in_universe")).sort("rank")["symbol"].to_list()[: args.symbols]
     OUT.mkdir(parents=True, exist_ok=True)
-    result: dict = {"generated": datetime.now(UTC).isoformat(), "symbols": symbols,
-                    "folds": [{"start": f[0], "end": f[1]} for f in FOLDS], "hypotheses": {}}
+    summary_path = OUT / "summary.json"
+    if args.merge and summary_path.exists():
+        result = json.loads(summary_path.read_text())
+        result["generated"] = datetime.now(UTC).isoformat()
+        result["symbols"] = symbols
+        result["folds"] = [{"start": f[0], "end": f[1]} for f in FOLDS]
+    else:
+        result = {"generated": datetime.now(UTC).isoformat(), "symbols": symbols,
+                  "folds": [{"start": f[0], "end": f[1]} for f in FOLDS], "hypotheses": {}}
 
-    baseline_rows = _run_batch([{"spec": BASE, "fold": f, "symbols": symbols} for f in FOLDS], args.workers)
-    _record(baseline_rows, "baseline", "baseline_walk_forward", "development", BASE)
-    baseline = _aggregate([r for r in baseline_rows if r.get("summary")])
-    result["baseline"] = baseline
+    if args.skip_reference and result.get("baseline") and result.get("random"):
+        baseline = result["baseline"]
+        random_agg = result["random"]
+    else:
+        baseline_rows = _run_batch([{"spec": BASE, "fold": f, "symbols": symbols} for f in FOLDS], args.workers)
+        _record(baseline_rows, "baseline", "baseline_walk_forward", "development", BASE)
+        baseline = _aggregate([r for r in baseline_rows if r.get("summary")])
+        result["baseline"] = baseline
 
-    random_rows = _run_batch([{"spec": RANDOM, "fold": f, "symbols": symbols} for f in FOLDS], args.workers)
-    _record(random_rows, "random", "benchmark_random", "development", RANDOM)
-    random_agg = _aggregate([r for r in random_rows if r.get("summary")])
-    result["random"] = random_agg
+        random_rows = _run_batch([{"spec": RANDOM, "fold": f, "symbols": symbols} for f in FOLDS], args.workers)
+        _record(random_rows, "random", "benchmark_random", "development", RANDOM)
+        random_agg = _aggregate([r for r in random_rows if r.get("summary")])
+        result["random"] = random_agg
 
     names = ["H1", "H2", "H3"] if args.hypothesis == "all" else [args.hypothesis]
     for name in names:
@@ -242,7 +264,7 @@ def main() -> None:
         tasks = [{"spec": s, "fold": f, "symbols": symbols} for s in specs for f in FOLDS]
         rows = _run_batch(tasks, args.workers)
         for spec in specs:
-            spec_rows = [r for r in rows if r["id"] == spec["id"] and r.get("summary")]
+            spec_rows = [r for r in rows if r["id"] == spec["id"]]
             _record(spec_rows, name, "hypothesis_fold", "development", spec)
         aggregates = {}
         for spec in specs:

@@ -1,3 +1,10 @@
+> **Phase 2 update (2026-10-30).** The explicit cost model and the
+> research round 1 are complete. The costed baseline and all three cost
+> hypotheses are **NO_GO**; the holdout 2026-07-01..2026-10-20 was not opened.
+> See `reports/research_round1/report.md` and
+> `reports/baseline_costed/baseline.md`. This document remains the Phase 1
+> record; its vault was not opened.
+
 # Milestone 6 validation report - GO / NO_GO
 
 **Verdict: NO_GO.**

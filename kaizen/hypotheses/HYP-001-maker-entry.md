@@ -53,3 +53,14 @@ Adverse selection can make the saved fee irrelevant: the limits that fill are
 exactly the ones where price keeps going through the zone. If the fill rate is
 below roughly 30% or cancelled entries would have been materially better, the
 hypothesis is rejected even if PF rises.
+
+## Result (2026-10-30)
+
+Rejected. Best configuration h1a (N=4, edge): 678 walk-forward trades, net
+-20.49 USDT, PF 0.919, expectancy -0.0296R, 90% CI [-0.0767, +0.0160], one
+positive fold out of four, fill rate 65.4%, stress PF 0.860. The passive
+entry improves the point estimate versus the baseline (-0.1697R) but does not
+reach PF 1.10, does not have a plateau and is negative under stress. Filled
+entries underperform cancelled entries by 0.33% over the next eight hours
+(90% CI [-0.71%, +0.04%]): adverse selection is present at the edge of
+significance, and the remaining edge is too small to cover the cost.
