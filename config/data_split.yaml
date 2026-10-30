@@ -1,0 +1,20 @@
+# Frozen before any experiment in research round 1. Do not edit.
+version: 1
+frozen: true
+
+development:
+  start: 2024-11-01
+  end: 2026-06-30
+  note: "2024-11-01..2025-12-31 original development + 2026-01-01..2026-06-30 original OOS, now development"
+
+holdout:
+  start: 2026-07-01
+  end: 2026-10-20
+  min_months: 3
+  note: "unopened at freeze time; last complete 1m bar closes 2026-10-21T00:00:00Z"
+
+catalog:
+  last_common_bar_close_utc: "2026-10-21T00:00:00Z"
+  symbols: 40
+  holdout_files: 160
+  holdout_manifest_hash: "4768406fa559fc4fc0f2124fc946a262"

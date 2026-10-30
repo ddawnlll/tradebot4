@@ -1,0 +1,29 @@
+# Frozen before any experiment in research round 1. Do not edit.
+# The reference specification file (~/src/tradebot_prompt.md) was not present;
+# these thresholds are the prior validation gates plus the task's hypothesis
+# criteria. See docs/adr/0006-frozen-gates-and-data-split.md.
+version: 1
+frozen: true
+
+holdout:
+  min_trades: 100
+  min_profit_factor: 1.20
+  min_expectancy_r: 0.0
+  max_drawdown_pct: 30.0
+  min_block_bootstrap_ci_lower_r: 0.0
+  require_beats_random: true
+  require_walk_forward_majority_positive: true
+  require_parameter_plateau: true
+
+hypothesis:
+  min_trades_walk_forward: 100
+  min_profit_factor: 1.10
+  min_profit_factor_stress: 1.00
+  require_bootstrap_ci90_above_baseline: true
+  require_beats_random: true
+  require_parameter_plateau: true
+  max_configs_per_hypothesis: 6
+
+cost_stress:
+  commission_multiplier: 1.5
+  slippage_multiplier: 2.0
