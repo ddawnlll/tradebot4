@@ -40,6 +40,7 @@ from bot.backtest.instruments import make_instrument, nautilus_id
 from bot.core.engine import DecisionEngine, EngineConfig
 from bot.core.market.scanner import ScannerConfig
 from bot.core.market.scoring import RangeScoreConfig
+from bot.core.market.state import SymbolConfig
 from bot.core.models import InstrumentSpec, config_hash
 from bot.core.risk.policy import RiskPolicy, RiskPolicyConfig
 from bot.core.risk.sizing import SizingConfig
@@ -86,6 +87,9 @@ class BacktestConfig:
     chunk_days: int = 15
     bar_interval_ms: int = 60_000
     adaptive_high_low: bool = False
+    entry_tf_ms: int = 900_000
+    context_tf_ms: int = 3_600_000
+    higher_tf_ms: int = 14_400_000
     venue: str = "BINANCE"
     use_funding: bool = True
     require_funding_coverage: bool = True
@@ -122,6 +126,9 @@ class BacktestConfig:
             "kill_switch_drawdown_frac": self.kill_switch_drawdown_frac,
             "bar_interval_ms": self.bar_interval_ms,
             "adaptive_high_low": self.adaptive_high_low,
+            "entry_tf_ms": self.entry_tf_ms,
+            "context_tf_ms": self.context_tf_ms,
+            "higher_tf_ms": self.higher_tf_ms,
             "range_score": _asdict(self.range_score),
             "scanner": _asdict(self.scanner),
         }
@@ -175,6 +182,11 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         raise ValueError("no instrument specs")
 
     strategy = build_strategy(cfg.strategy, cfg.strategy_params)
+    symbol_cfg = SymbolConfig(
+        entry_tf_ms=cfg.entry_tf_ms,
+        context_tf_ms=cfg.context_tf_ms,
+        higher_tf_ms=cfg.higher_tf_ms,
+    )
     engine_cfg = EngineConfig(
         strategy_name=cfg.strategy,
         strategy_version=strategy.version,
@@ -183,6 +195,7 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         range_score=cfg.range_score,
         scanner=cfg.scanner,
         sizing=SizingConfig(risk_fraction=cfg.risk_fraction, max_leverage=cfg.leverage),
+        symbol=symbol_cfg,
     )
     risk = RiskPolicy(
         RiskPolicyConfig(

@@ -13,6 +13,7 @@ from typing import Any, Protocol
 from bot.core.market.state import SymbolState
 from bot.core.models import (
     Bar,
+    EntryType,
     ExitReason,
     MarketRegime,
     PortfolioSnapshot,
@@ -51,6 +52,9 @@ class EntryProposal:
     stop_price: float
     take_profits: tuple[float, ...]
     reason: str
+    entry_type: EntryType = EntryType.MARKET
+    post_only: bool = False
+    hold_bars: int = 0
     features: dict[str, Any] = field(default_factory=dict)
 
 

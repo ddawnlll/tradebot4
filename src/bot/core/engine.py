@@ -73,6 +73,8 @@ class ManagedPosition:
     pending_protect: bool = False
     pending_move_stop: bool = False
     pending_since_ts: int = 0
+    entry_deadline_ts: int = 0
+    cancel_pending: bool = False
     features: dict[str, Any] = field(default_factory=dict)
 
     @property
@@ -160,6 +162,46 @@ class DecisionEngine:
         update = state.on_1m(bar)
         intents: list[OrderIntent] = []
 
+        # A resting entry that never filled must be cancelled, otherwise the
+        # slot and its risk budget are blocked indefinitely.
+        if (
+            pos is not None
+            and not pos.is_open
+            and pos.entry_deadline_ts > 0
+            and not pos.cancel_pending
+            and bar.ts_close_ms >= pos.entry_deadline_ts
+        ):
+            pos.cancel_pending = True
+            cancel_intent = OrderIntent(
+                signal_id=pos.signal_id,
+                symbol=pos.symbol,
+                side=pos.side,
+                action="CANCEL_ENTRY",
+                entry_type=EntryType.LIMIT_POST_ONLY,
+                post_only=True,
+                entry_price=pos.entry_price,
+                stop_price=pos.stop_price,
+                take_profits=(pos.tp1_price, pos.tp2_price) if pos.tp2_price else (pos.tp1_price,),
+                quantity=pos.qty,
+                risk_usdt=pos.risk_usdt,
+                strategy_version=pos.strategy_version,
+                reason="passive_entry_timeout",
+                ts_ms=bar.ts_close_ms,
+            )
+            self._record_signal(
+                bar.ts_close_ms,
+                state,
+                pos.side,
+                "CANCEL",
+                RejectReason.ENTRY_TIMEOUT,
+                pos.setup,
+                state.context_regime,
+                "passive entry timeout",
+                None,
+                cancel_intent,
+            )
+            return [cancel_intent]
+
         # An exit supersedes protection maintenance. Emitting both in one bar
         # can let the market exit settle before the protective orders, which
         # are then rejected as reduce-only against a flat position.
@@ -233,7 +275,7 @@ class DecisionEngine:
                 if proposal is not None:
                     intent, reject, detail = self._build_intent(state, proposal, setup, ts_ms)
                     if intent is not None:
-                        self._record_signal(ts_ms, state, proposal.side, "ENTER", reject, setup, regime, detail, proposal)
+                        self._record_signal(ts_ms, state, proposal.side, "ENTER", reject, setup, regime, detail, proposal, intent)
                         return [intent]
 
         if self.config.record_rejected_setups and (setup is not None or (self.config.record_all_rejects and reject is not None)):
@@ -301,7 +343,7 @@ class DecisionEngine:
             symbol=state.symbol,
             side=side,
             action="ENTRY",
-            entry_type=EntryType.MARKET,
+            entry_type=proposal.entry_type,
             entry_price=proposal.entry_price,
             stop_price=stop,
             take_profits=tuple(tps),
@@ -310,6 +352,7 @@ class DecisionEngine:
             strategy_version=self.strategy.version,
             reason=proposal.reason,
             ts_ms=ts_ms,
+            post_only=proposal.post_only,
             legs=legs,
             leg_kinds=leg_kinds,
             features={
@@ -339,6 +382,11 @@ class DecisionEngine:
             mfe_price=proposal.entry_price,
             last_ts_ms=ts_ms,
             last_price=proposal.entry_price,
+            entry_deadline_ts=(
+                ts_ms + proposal.hold_bars * state.config.entry_tf_ms
+                if proposal.post_only and proposal.hold_bars > 0
+                else 0
+            ),
             features={"legs": legs, "tp_count": len(tps)},
         )
         self.risk.on_position_opened(decision.risk_usdt)
@@ -437,6 +485,8 @@ class DecisionEngine:
             pos.qty = pos.filled_entry_qty
             pos.initial_qty = pos.filled_entry_qty
             pos.is_open = True
+            pos.cancel_pending = False
+            pos.entry_deadline_ts = 0
             if event.ts_ms == pos.last_protect_ts:
                 return []
             return self._protect_intent(pos, event.ts_ms)
@@ -644,6 +694,7 @@ class DecisionEngine:
         regime: MarketRegime | None,
         detail: str,
         proposal: EntryProposal | None,
+        intent: OrderIntent | None = None,
     ) -> None:
         decision = SignalDecision(
             ts_ms=ts_ms,
@@ -661,8 +712,17 @@ class DecisionEngine:
                 "quote_volume_24h": state.quote_volume_24h,
                 "components": setup.score_components if setup else {},
                 "stop_pct": (
-                    abs(proposal.stop_price - proposal.entry_price) / proposal.entry_price if proposal else None
+                    abs(intent.stop_price - intent.entry_price) / intent.entry_price
+                    if intent and intent.entry_price
+                    else abs(proposal.stop_price - proposal.entry_price) / proposal.entry_price
+                    if proposal and proposal.entry_price
+                    else None
                 ),
+                "entry_price": intent.entry_price if intent else None,
+                "stop_price": intent.stop_price if intent else None,
+                "tp1_price": intent.take_profits[0] if intent and intent.take_profits else None,
+                "tp2_price": intent.take_profits[1] if intent and len(intent.take_profits) > 1 else None,
+                "post_only": bool(intent.post_only) if intent else False,
             },
         )
         self._emit("signal", _signal_payload(decision))

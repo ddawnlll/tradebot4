@@ -29,7 +29,7 @@ from nautilus_trader.trading import Strategy
 from bot.backtest.instruments import nautilus_id
 from bot.core.engine import DecisionEngine, FillEvent
 from bot.core.models import Bar as CoreBar
-from bot.core.models import OrderIntent, PortfolioSnapshot, Side
+from bot.core.models import EntryType, OrderIntent, PortfolioSnapshot, Side
 
 MS = 1_000_000  # ns per ms
 
@@ -138,6 +138,8 @@ class BacktestBridge(Strategy):
         try:
             if intent.action == "ENTRY":
                 self._submit_entry(intent)
+            elif intent.action == "CANCEL_ENTRY":
+                self._cancel_entry(intent)
             elif intent.action == "PROTECT":
                 self._submit_protection(intent)
             elif intent.action == "EXIT":
@@ -150,17 +152,61 @@ class BacktestBridge(Strategy):
         inst = self._instrument(intent.symbol)
         cid = self._next_id("E")
         side = OrderSide.BUY if intent.side is Side.LONG else OrderSide.SELL
-        order = self.order_factory.market(
-            instrument_id=inst.id,
-            order_side=side,
-            quantity=inst.make_qty(intent.quantity, round_down=True),
-            time_in_force=TimeInForce.GTC,
-            reduce_only=False,
-            client_order_id=ClientOrderId(cid),
-        )
+        if intent.post_only or intent.entry_type is EntryType.LIMIT_POST_ONLY:
+            order = self.order_factory.limit(
+                instrument_id=inst.id,
+                order_side=side,
+                quantity=inst.make_qty(intent.quantity, round_down=True),
+                price=inst.make_price(intent.entry_price),
+                time_in_force=TimeInForce.GTC,
+                post_only=True,
+                reduce_only=False,
+                client_order_id=ClientOrderId(cid),
+            )
+            order_type = "LIMIT"
+        else:
+            order = self.order_factory.market(
+                instrument_id=inst.id,
+                order_side=side,
+                quantity=inst.make_qty(intent.quantity, round_down=True),
+                time_in_force=TimeInForce.GTC,
+                reduce_only=False,
+                client_order_id=ClientOrderId(cid),
+            )
+            order_type = "MARKET"
         self._orders[cid] = _OrderMeta(cid, intent.symbol, "ENTRY", requested_qty=intent.quantity, signal_id=intent.signal_id, reference_price=intent.entry_price)
-        self._record_order(intent.ts_ms, intent.symbol, cid, "ENTRY", "MARKET", None, intent.quantity)
+        self._record_order(intent.ts_ms, intent.symbol, cid, order_type, "ENTRY", intent.entry_price, intent.quantity)
         self.submit_order(order)
+
+    def _cancel_entry(self, intent: OrderIntent) -> None:
+        for cid, meta in list(self._orders.items()):
+            if meta.kind == "ENTRY" and meta.symbol == intent.symbol and meta.signal_id == intent.signal_id:
+                self.cancel_order(ClientOrderId(cid))
+                return
+        # The order is already gone; release the pending slot.
+        self._engine.on_entry_rejected(intent.symbol)
+
+    def on_order_canceled(self, event) -> None:
+        self._on_cancel(event)
+
+    def on_order_expired(self, event) -> None:
+        self._on_cancel(event)
+
+    def on_order_cancel_rejected(self, event) -> None:
+        cid = event.client_order_id.value
+        meta = self._orders.get(cid)
+        if meta is not None and meta.kind == "ENTRY":
+            pos = self._engine.positions.get(meta.symbol)
+            if pos is not None and not pos.is_open:
+                pos.cancel_pending = False
+
+    def _on_cancel(self, event) -> None:
+        cid = event.client_order_id.value
+        meta = self._orders.pop(cid, None)
+        if meta is None:
+            return
+        if meta.kind == "ENTRY":
+            self._engine.on_entry_rejected(meta.symbol)
 
     def _submit_protection(self, intent: OrderIntent) -> None:
         inst = self._instrument(intent.symbol)
