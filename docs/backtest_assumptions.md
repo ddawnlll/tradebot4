@@ -84,3 +84,14 @@ development runs reconcile to 0.0 USDT.
 
 These are reasons why a GO is *permission to test on testnet*, not permission
 to trade real money.
+
+## Reconciliation tolerance
+
+The equity change must equal the sum of trade net PnL up to a small residual.
+The residual comes from funding events that occur while the account is flat:
+the venue debits or credits the account, but there is no open trade to attach
+the amount to. The accepted tolerance is `max(0.01 USDT, 0.5% of the starting
+balance)`, i.e. 0.10 USDT at the 20 USDT research size. The cost test asserts
+exact reconciliation (`< 1e-6`) when funding is disabled; the funding-enabled
+test asserts the documented tolerance. A residual above the tolerance is a
+warning in `runner.py` and must be investigated, not ignored.

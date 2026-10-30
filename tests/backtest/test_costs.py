@@ -121,3 +121,25 @@ def test_journal_database_is_transient() -> None:
     )
     assert (result.run_dir / "signals").exists()
     assert not (result.run_dir / "journal.sqlite").exists()
+
+
+def test_funding_reconciliation_within_documented_tolerance() -> None:
+    """Funding while flat is booked to the account but not to a trade.
+
+    The residual must stay inside the documented tolerance
+    ``max(0.01 USDT, 0.5% of starting balance)``.
+    """
+    start = int(datetime(2024, 11, 1, tzinfo=UTC).timestamp() * 1000)
+    end = int(datetime(2024, 12, 1, tzinfo=UTC).timestamp() * 1000)
+    result = run_backtest(
+        BacktestConfig(
+            symbols=["WIFUSDT"],
+            start_ms=start,
+            end_ms=end,
+            use_funding=True,
+            journal=False,
+            enrich=False,
+        )
+    )
+    tolerance = max(0.01, 0.005 * result.metrics["starting_balance"])
+    assert abs(result.metrics["equity_residual_usdt"]) <= tolerance
