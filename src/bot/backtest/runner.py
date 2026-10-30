@@ -67,8 +67,8 @@ class BacktestConfig:
     leverage: float = 10.0
     maker_fee: float = 0.0002
     taker_fee: float = 0.0005
-    prob_fill_on_limit: float = 1.0
-    prob_slippage: float = 0.0
+    prob_fill_on_limit: float = 0.9
+    prob_slippage: float = 1.0
     random_seed: int | None = 42
     latency_ms: int = 0
     max_positions: int = 1
