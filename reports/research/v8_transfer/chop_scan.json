@@ -1,0 +1,82 @@
+{
+  "source_run_dir": "./runs/20261030T115653Z_range_v1_dacaa5eb69700faa",
+  "source_run_id": "20261030T115653Z_range_v1_dacaa5eb69700faa",
+  "source_config_hash": "dacaa5eb69700faa",
+  "diagnostic_only": true,
+  "conditional_on_baseline_trade_set": true,
+  "portfolio_equity_claimed": false,
+  "A1": {
+    "status": "DATA_BLOCKED",
+    "reason": "expected gross excursion must be a causal, fold-safe estimate; the only excursion available is future MFE, which cannot be used at entry"
+  },
+  "baseline": {
+    "n": 103,
+    "sum_r": -8.629404981932199,
+    "mean_r": -0.08378063089254562,
+    "median_r": 0.2019736017472187,
+    "pf": 0.7634961631936158,
+    "win_rate": 0.5631067961165048,
+    "max_dd_r": 13.130797195111748
+  },
+  "A2": {
+    "n": 99,
+    "vetoed": 4,
+    "sum_r": -10.751413647209421,
+    "mean_r": -0.10860013785060021,
+    "median_r": 0.18793072642385175,
+    "pf": 0.6994271370930205,
+    "win_rate": 0.5555555555555556,
+    "max_dd_r": 15.970442610500992,
+    "veto_examples": [
+      {
+        "trade_id": "range_v1-APEUSDT-1730743200000-T",
+        "reason": "A2_COOLDOWN",
+        "last_trade": "range_v1-APEUSDT-1730736900000-T",
+        "gap_ms": 5160000
+      },
+      {
+        "trade_id": "range_v1-MEWUSDT-1733713200000-T",
+        "reason": "A2_COOLDOWN",
+        "last_trade": "range_v1-MEWUSDT-1733706000000-T",
+        "gap_ms": 6900000
+      },
+      {
+        "trade_id": "range_v1-TIAUSDT-1735607700000-T",
+        "reason": "A2_COOLDOWN",
+        "last_trade": "range_v1-TIAUSDT-1735600500000-T",
+        "gap_ms": 2400000
+      },
+      {
+        "trade_id": "range_v1-1000SHIBUSDT-1735754400000-T",
+        "reason": "A2_COOLDOWN",
+        "last_trade": "range_v1-1000SHIBUSDT-1735749000000-T",
+        "gap_ms": 2460000
+      }
+    ],
+    "delta_mean_r": -0.0248195069580546
+  },
+  "A3": {
+    "n": 103,
+    "vetoed": 0,
+    "unknown": 0,
+    "sum_r": -8.629404981932199,
+    "mean_r": -0.08378063089254562,
+    "median_r": 0.2019736017472187,
+    "pf": 0.7634961631936158,
+    "win_rate": 0.5631067961165048,
+    "max_dd_r": 13.130797195111748,
+    "veto_examples": [],
+    "delta_mean_r": 0.0
+  },
+  "A5_A2_A3": {
+    "n": 99,
+    "sum_r": -10.751413647209421,
+    "mean_r": -0.10860013785060021,
+    "median_r": 0.18793072642385175,
+    "pf": 0.6994271370930205,
+    "win_rate": 0.5555555555555556,
+    "max_dd_r": 15.970442610500992,
+    "note": "A2+A3 only; A1 is DATA_BLOCKED, so this is not the full v8 A5 composite",
+    "delta_mean_r": -0.0248195069580546
+  }
+}

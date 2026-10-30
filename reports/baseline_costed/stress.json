@@ -1,0 +1,1013 @@
+{
+  "generated": "2026-10-30T12:37:40.807587+00:00",
+  "start": "2024-11-01",
+  "end": "2025-12-31",
+  "symbols": 40,
+  "normal": {
+    "starting_balance": 20.0,
+    "trades": 103,
+    "net_pnl": -7.853609737361647,
+    "return_pct": -39.346176099999994,
+    "final_equity": 12.13076478,
+    "max_drawdown_pct": 50.44793733562638,
+    "max_drawdown_usdt": 12.350082490000002,
+    "profit_factor": 0.7674448494797801,
+    "win_rate": 0.5631067961165048,
+    "expectancy_r": -0.0837806308925456,
+    "avg_r": -0.0837806308925456,
+    "median_r": 0.2019736017472187,
+    "sharpe": -1.260413365758722,
+    "sortino": -0.8764445958733128,
+    "calmar": -0.6923831541539247,
+    "fees": 4.25199763,
+    "funding": -0.07644381736167101,
+    "slippage": 1.0446590099999982,
+    "long": {
+      "trades": 56,
+      "net_pnl": -7.738360099735905,
+      "win_rate": 0.5178571428571429,
+      "expectancy_r": -0.1372580601283208,
+      "profit_factor": 0.6421317384583326,
+      "funding": -0.126352929735972,
+      "tp1_rate": 0.5178571428571429,
+      "stop_rate": 0.03571428571428571
+    },
+    "short": {
+      "trades": 47,
+      "net_pnl": -0.1152496376257412,
+      "win_rate": 0.6170212765957447,
+      "expectancy_r": -0.02006284286694109,
+      "profit_factor": 0.9905124558091551,
+      "funding": 0.049909112374301005,
+      "tp1_rate": 0.6170212765957447,
+      "stop_rate": 0.0
+    },
+    "by_symbol": [
+      {
+        "symbol": "XRPUSDT",
+        "trades": 4,
+        "net_pnl": 1.48858188468003,
+        "expectancy_r": 0.416516969886911,
+        "win_rate": 0.75
+      },
+      {
+        "symbol": "WLDUSDT",
+        "trades": 2,
+        "net_pnl": 1.4718966913400084,
+        "expectancy_r": 0.7160570984692991,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "BNBUSDT",
+        "trades": 1,
+        "net_pnl": 1.1674417999999909,
+        "expectancy_r": 1.064531545546378,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "WIFUSDT",
+        "trades": 3,
+        "net_pnl": 1.1621596900000024,
+        "expectancy_r": 0.3942210521752903,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "1000FLOKIUSDT",
+        "trades": 4,
+        "net_pnl": 0.6972201818671868,
+        "expectancy_r": 0.1627666051203254,
+        "win_rate": 0.75
+      },
+      {
+        "symbol": "1000PEPEUSDT",
+        "trades": 2,
+        "net_pnl": 0.6414220330369771,
+        "expectancy_r": 0.37547559910385186,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "MASKUSDT",
+        "trades": 1,
+        "net_pnl": 0.5553001999999942,
+        "expectancy_r": 0.8022600861626487,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "PYTHUSDT",
+        "trades": 2,
+        "net_pnl": 0.4600591599999923,
+        "expectancy_r": 0.2690895458040702,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "POPCATUSDT",
+        "trades": 2,
+        "net_pnl": 0.43949476999999704,
+        "expectancy_r": 0.2158123739162048,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "BIGTIMEUSDT",
+        "trades": 3,
+        "net_pnl": 0.3294110935000004,
+        "expectancy_r": 0.0025597777786829923,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "SUIUSDT",
+        "trades": 4,
+        "net_pnl": 0.31584702326401537,
+        "expectancy_r": 0.15420653253343564,
+        "win_rate": 0.75
+      },
+      {
+        "symbol": "APTUSDT",
+        "trades": 1,
+        "net_pnl": 0.20451765000000216,
+        "expectancy_r": 0.24010869566137383,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "ADAUSDT",
+        "trades": 1,
+        "net_pnl": 0.2008268857110032,
+        "expectancy_r": 0.21226767860200213,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "MEWUSDT",
+        "trades": 2,
+        "net_pnl": 0.18354018999999178,
+        "expectancy_r": 0.11467279641967337,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "MKRUSDT",
+        "trades": 1,
+        "net_pnl": 0.1701587199999971,
+        "expectancy_r": 0.2019736017472187,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "trades": 3,
+        "net_pnl": 0.14555470000000037,
+        "expectancy_r": 0.0443490259207309,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "TURBOUSDT",
+        "trades": 2,
+        "net_pnl": 0.14533703000000275,
+        "expectancy_r": 0.03565980597450952,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "BOMEUSDT",
+        "trades": 3,
+        "net_pnl": 0.09897784000001064,
+        "expectancy_r": -0.005713906116644833,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "ENAUSDT",
+        "trades": 3,
+        "net_pnl": 0.09035168499998986,
+        "expectancy_r": 0.09885806634458028,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "SOLUSDT",
+        "trades": 2,
+        "net_pnl": -0.43723012000001266,
+        "expectancy_r": -0.26340524101638346,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "NEIROUSDT",
+        "trades": 4,
+        "net_pnl": -0.6642482103224429,
+        "expectancy_r": -0.2511478687961179,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "1000SATSUSDT",
+        "trades": 1,
+        "net_pnl": -0.6729480799999981,
+        "expectancy_r": -0.8251770213161315,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "FETUSDT",
+        "trades": 1,
+        "net_pnl": -0.7142677499999963,
+        "expectancy_r": -0.8981817433919588,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "BCHUSDT",
+        "trades": 1,
+        "net_pnl": -0.7433942299999995,
+        "expectancy_r": -0.7767597856031273,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "DOTUSDT",
+        "trades": 1,
+        "net_pnl": -0.8816457000000013,
+        "expectancy_r": -0.833353421009091,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "APEUSDT",
+        "trades": 5,
+        "net_pnl": -1.0642709200000033,
+        "expectancy_r": -0.19696598338739615,
+        "win_rate": 0.4
+      },
+      {
+        "symbol": "UNIUSDT",
+        "trades": 7,
+        "net_pnl": -1.0823074000000033,
+        "expectancy_r": -0.19819399306619415,
+        "win_rate": 0.5714285714285714
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "trades": 3,
+        "net_pnl": -1.149425900000001,
+        "expectancy_r": -0.2429976144945186,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "symbol": "TIAUSDT",
+        "trades": 8,
+        "net_pnl": -1.1560082408480041,
+        "expectancy_r": -0.13058645511748812,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "1000SHIBUSDT",
+        "trades": 5,
+        "net_pnl": -1.1729274794999984,
+        "expectancy_r": -0.2938820482745782,
+        "win_rate": 0.4
+      },
+      {
+        "symbol": "NEIROETHUSDT",
+        "trades": 3,
+        "net_pnl": -1.2207967546653904,
+        "expectancy_r": -0.4935224195358614,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "symbol": "LINKUSDT",
+        "trades": 5,
+        "net_pnl": -1.2235483220000065,
+        "expectancy_r": -0.29006668426029547,
+        "win_rate": 0.4
+      },
+      {
+        "symbol": "ORDIUSDT",
+        "trades": 4,
+        "net_pnl": -1.3194484599999896,
+        "expectancy_r": -0.37850801129914496,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "PEOPLEUSDT",
+        "trades": 6,
+        "net_pnl": -1.7921916260000073,
+        "expectancy_r": -0.3336780921518259,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "symbol": "ETHUSDT",
+        "trades": 3,
+        "net_pnl": -2.5270497724249847,
+        "expectancy_r": -0.7379019022489363,
+        "win_rate": 0.3333333333333333
+      }
+    ],
+    "by_exit_reason": [
+      {
+        "exit_reason": "TP2",
+        "trades": 23,
+        "net_pnl": 17.716296055987396,
+        "expectancy_r": 0.8118693606901985,
+        "win_rate": 1.0
+      },
+      {
+        "exit_reason": "STOP_BREAKEVEN",
+        "trades": 34,
+        "net_pnl": 7.712700527400612,
+        "expectancy_r": 0.24719470875944285,
+        "win_rate": 1.0
+      },
+      {
+        "exit_reason": "TP1",
+        "trades": 1,
+        "net_pnl": 0.48834959999999616,
+        "expectancy_r": 0.7803580046084746,
+        "win_rate": 1.0
+      },
+      {
+        "exit_reason": "KILL_SWITCH",
+        "trades": 1,
+        "net_pnl": -0.21395407999999735,
+        "expectancy_r": -0.348843922489994,
+        "win_rate": 0.0
+      },
+      {
+        "exit_reason": "STOP",
+        "trades": 2,
+        "net_pnl": -2.8801111470903944,
+        "expectancy_r": -1.3029684237985752,
+        "win_rate": 0.0
+      },
+      {
+        "exit_reason": "BREAKOUT",
+        "trades": 42,
+        "net_pnl": -30.67689069365926,
+        "expectancy_r": -0.7983951811940274,
+        "win_rate": 0.0
+      }
+    ],
+    "by_hour": [
+      {
+        "hour": 22,
+        "trades": 3,
+        "net_pnl": 1.8645309452169778,
+        "expectancy_r": 0.5895737798835876,
+        "win_rate": 1.0
+      },
+      {
+        "hour": 4,
+        "trades": 6,
+        "net_pnl": 1.7102492999439312,
+        "expectancy_r": 0.2310786503884,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "hour": 3,
+        "trades": 4,
+        "net_pnl": 1.666319192004857,
+        "expectancy_r": 0.39403130792362806,
+        "win_rate": 0.75
+      },
+      {
+        "hour": 21,
+        "trades": 4,
+        "net_pnl": 0.5095436665000005,
+        "expectancy_r": 0.15766259903778904,
+        "win_rate": 0.75
+      },
+      {
+        "hour": 12,
+        "trades": 2,
+        "net_pnl": 0.45641695000000054,
+        "expectancy_r": 0.23401574452065993,
+        "win_rate": 1.0
+      },
+      {
+        "hour": 11,
+        "trades": 4,
+        "net_pnl": 0.30022344622876396,
+        "expectancy_r": 0.008630089045795042,
+        "win_rate": 0.75
+      },
+      {
+        "hour": 18,
+        "trades": 8,
+        "net_pnl": 0.17065092500000922,
+        "expectancy_r": 0.06732363188048052,
+        "win_rate": 0.625
+      },
+      {
+        "hour": 1,
+        "trades": 7,
+        "net_pnl": 0.1201476250000183,
+        "expectancy_r": 0.031938366967457554,
+        "win_rate": 0.5714285714285714
+      },
+      {
+        "hour": 10,
+        "trades": 5,
+        "net_pnl": 0.0958296299999925,
+        "expectancy_r": 0.03345677576485774,
+        "win_rate": 0.8
+      },
+      {
+        "hour": 6,
+        "trades": 2,
+        "net_pnl": 0.018115309664005153,
+        "expectancy_r": -0.04833700657694526,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 19,
+        "trades": 3,
+        "net_pnl": -0.18168128000000927,
+        "expectancy_r": -0.05548399647982279,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "hour": 13,
+        "trades": 3,
+        "net_pnl": -0.21418075000000825,
+        "expectancy_r": -0.11369335912049734,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "hour": 0,
+        "trades": 4,
+        "net_pnl": -0.2768395199999982,
+        "expectancy_r": -0.1081405298123349,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 16,
+        "trades": 7,
+        "net_pnl": -0.47845283999999655,
+        "expectancy_r": -0.06801647498783339,
+        "win_rate": 0.5714285714285714
+      },
+      {
+        "hour": 2,
+        "trades": 4,
+        "net_pnl": -0.5423891552496026,
+        "expectancy_r": -0.156670485349566,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 14,
+        "trades": 4,
+        "net_pnl": -0.5624826465680032,
+        "expectancy_r": -0.11246306417733251,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 8,
+        "trades": 2,
+        "net_pnl": -0.6766852000000094,
+        "expectancy_r": -0.2659731314221001,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 9,
+        "trades": 4,
+        "net_pnl": -0.9257306799999994,
+        "expectancy_r": -0.2412329811196823,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 15,
+        "trades": 7,
+        "net_pnl": -1.0975265757321735,
+        "expectancy_r": -0.1468768793436348,
+        "win_rate": 0.5714285714285714
+      },
+      {
+        "hour": 23,
+        "trades": 2,
+        "net_pnl": -1.200335814280007,
+        "expectancy_r": -0.8281409797366575,
+        "win_rate": 0.0
+      },
+      {
+        "hour": 5,
+        "trades": 4,
+        "net_pnl": -1.5256579400000025,
+        "expectancy_r": -0.39739231111385415,
+        "win_rate": 0.25
+      },
+      {
+        "hour": 17,
+        "trades": 3,
+        "net_pnl": -1.590552700000006,
+        "expectancy_r": -0.4723004135671223,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "hour": 20,
+        "trades": 6,
+        "net_pnl": -1.808399060000002,
+        "expectancy_r": -0.3036961923166289,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "hour": 7,
+        "trades": 5,
+        "net_pnl": -3.684722565090385,
+        "expectancy_r": -0.7648007072278002,
+        "win_rate": 0.2
+      }
+    ],
+    "avg_holding_hours": 1.8118122977346274,
+    "exposure_pct": null,
+    "cagr_pct": -34.929301973000534,
+    "std_r": 0.6894106793160093,
+    "bayes_win_rate_lower": 0.48191798503663863,
+    "equity_residual_usdt": -0.01562548263835417
+  },
+  "stress": {
+    "starting_balance": 20.0,
+    "trades": 101,
+    "net_pnl": -7.783443914855469,
+    "return_pct": -38.971726249999996,
+    "final_equity": 12.20565475,
+    "max_drawdown_pct": 50.21177658446542,
+    "max_drawdown_usdt": 12.309489419999998,
+    "profit_factor": 0.762622611454662,
+    "win_rate": 0.594059405940594,
+    "expectancy_r": -0.08628848413333172,
+    "avg_r": -0.08628848413333172,
+    "median_r": 0.16605112652016593,
+    "sharpe": -1.2902194230922215,
+    "sortino": -0.9187316591254682,
+    "calmar": -0.6887669056156533,
+    "fees": 6.132379580000001,
+    "funding": -0.07232800485544896,
+    "slippage": 1.9457101900000189,
+    "long": {
+      "trades": 54,
+      "net_pnl": -8.32150082054555,
+      "win_rate": 0.5370370370370371,
+      "expectancy_r": -0.16192427863652933,
+      "profit_factor": 0.6052548369108768,
+      "funding": -0.12594570054558402,
+      "tp1_rate": 0.5370370370370371,
+      "stop_rate": 0.037037037037037035
+    },
+    "short": {
+      "trades": 47,
+      "net_pnl": 0.5380569056900792,
+      "win_rate": 0.6595744680851063,
+      "expectancy_r": 0.0006122159341719383,
+      "profit_factor": 1.0459538653031155,
+      "funding": 0.053617695690135005,
+      "tp1_rate": 0.6595744680851063,
+      "stop_rate": 0.0
+    },
+    "by_symbol": [
+      {
+        "symbol": "XRPUSDT",
+        "trades": 4,
+        "net_pnl": 1.437898549524011,
+        "expectancy_r": 0.3902652323399206,
+        "win_rate": 0.75
+      },
+      {
+        "symbol": "WLDUSDT",
+        "trades": 2,
+        "net_pnl": 1.327031648320001,
+        "expectancy_r": 0.6858173792216745,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "BNBUSDT",
+        "trades": 1,
+        "net_pnl": 1.1631452699999998,
+        "expectancy_r": 1.0101083386875869,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "WIFUSDT",
+        "trades": 3,
+        "net_pnl": 1.0370433699999988,
+        "expectancy_r": 0.369578306894188,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "1000PEPEUSDT",
+        "trades": 2,
+        "net_pnl": 0.5682825330651352,
+        "expectancy_r": 0.340150751299038,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "MASKUSDT",
+        "trades": 1,
+        "net_pnl": 0.5036251099999947,
+        "expectancy_r": 0.7658983358859403,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "1000FLOKIUSDT",
+        "trades": 4,
+        "net_pnl": 0.49028290619480064,
+        "expectancy_r": 0.13829764285864196,
+        "win_rate": 0.75
+      },
+      {
+        "symbol": "NEIROUSDT",
+        "trades": 4,
+        "net_pnl": 0.4169916905948164,
+        "expectancy_r": 0.07450996758096536,
+        "win_rate": 0.75
+      },
+      {
+        "symbol": "POPCATUSDT",
+        "trades": 2,
+        "net_pnl": 0.3869117700000007,
+        "expectancy_r": 0.18327062549488532,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "PYTHUSDT",
+        "trades": 2,
+        "net_pnl": 0.3671679500000008,
+        "expectancy_r": 0.2174334588146947,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "AVAXUSDT",
+        "trades": 3,
+        "net_pnl": 0.34974315000000034,
+        "expectancy_r": 0.25264689150610203,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "BIGTIMEUSDT",
+        "trades": 3,
+        "net_pnl": 0.2535527693700136,
+        "expectancy_r": -0.03183251697277153,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "SUIUSDT",
+        "trades": 4,
+        "net_pnl": 0.1750094624,
+        "expectancy_r": 0.11497250336614248,
+        "win_rate": 0.75
+      },
+      {
+        "symbol": "APTUSDT",
+        "trades": 1,
+        "net_pnl": 0.1734277099999969,
+        "expectancy_r": 0.2036083498888131,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "ADAUSDT",
+        "trades": 1,
+        "net_pnl": 0.17323186571099541,
+        "expectancy_r": 0.18310061356666285,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "MKRUSDT",
+        "trades": 1,
+        "net_pnl": 0.11691791999999417,
+        "expectancy_r": 0.14325499217363666,
+        "win_rate": 1.0
+      },
+      {
+        "symbol": "TURBOUSDT",
+        "trades": 2,
+        "net_pnl": 0.10161827000000012,
+        "expectancy_r": 0.005814450304287677,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "MEWUSDT",
+        "trades": 2,
+        "net_pnl": 0.09969730000000177,
+        "expectancy_r": 0.07095929216603603,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "DOGEUSDT",
+        "trades": 3,
+        "net_pnl": 0.030535870000007015,
+        "expectancy_r": 0.01406121516763185,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "ENAUSDT",
+        "trades": 3,
+        "net_pnl": 0.01779037499998881,
+        "expectancy_r": 0.07202949245119937,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "BOMEUSDT",
+        "trades": 3,
+        "net_pnl": 0.009020569999994121,
+        "expectancy_r": -0.05413501527973563,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "symbol": "SOLUSDT",
+        "trades": 2,
+        "net_pnl": -0.5699499800000043,
+        "expectancy_r": -0.3291335065237177,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "1000SATSUSDT",
+        "trades": 1,
+        "net_pnl": -0.6818448300000012,
+        "expectancy_r": -0.8764286352611192,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "FETUSDT",
+        "trades": 1,
+        "net_pnl": -0.7364901499999942,
+        "expectancy_r": -0.953365104749507,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "NEIROETHUSDT",
+        "trades": 2,
+        "net_pnl": -0.7581202942902004,
+        "expectancy_r": -0.395002527274927,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "BCHUSDT",
+        "trades": 1,
+        "net_pnl": -0.7709465100000003,
+        "expectancy_r": -0.8211904089668739,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "DOTUSDT",
+        "trades": 1,
+        "net_pnl": -0.8735496400000028,
+        "expectancy_r": -0.8703333009122441,
+        "win_rate": 0.0
+      },
+      {
+        "symbol": "LINKUSDT",
+        "trades": 4,
+        "net_pnl": -1.1767920759999844,
+        "expectancy_r": -0.3223687324636888,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "TIAUSDT",
+        "trades": 8,
+        "net_pnl": -1.259392071420006,
+        "expectancy_r": -0.16844076333291305,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "APEUSDT",
+        "trades": 5,
+        "net_pnl": -1.2704563800000095,
+        "expectancy_r": -0.23969090824524764,
+        "win_rate": 0.4
+      },
+      {
+        "symbol": "UNIUSDT",
+        "trades": 7,
+        "net_pnl": -1.312280399999994,
+        "expectancy_r": -0.24573518496838023,
+        "win_rate": 0.5714285714285714
+      },
+      {
+        "symbol": "1000SHIBUSDT",
+        "trades": 5,
+        "net_pnl": -1.3247301449000086,
+        "expectancy_r": -0.3440649104886155,
+        "win_rate": 0.4
+      },
+      {
+        "symbol": "ORDIUSDT",
+        "trades": 4,
+        "net_pnl": -1.3896177900000133,
+        "expectancy_r": -0.42679530477347694,
+        "win_rate": 0.5
+      },
+      {
+        "symbol": "PEOPLEUSDT",
+        "trades": 6,
+        "net_pnl": -2.025325926000007,
+        "expectancy_r": -0.3863538504434902,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "symbol": "ETHUSDT",
+        "trades": 3,
+        "net_pnl": -2.832873782424995,
+        "expectancy_r": -0.8321352279816604,
+        "win_rate": 0.3333333333333333
+      }
+    ],
+    "by_exit_reason": [
+      {
+        "exit_reason": "TP2",
+        "trades": 24,
+        "net_pnl": 17.50575561925113,
+        "expectancy_r": 0.7790044315673407,
+        "win_rate": 1.0
+      },
+      {
+        "exit_reason": "STOP_BREAKEVEN",
+        "trades": 34,
+        "net_pnl": 6.324428522087819,
+        "expectancy_r": 0.20472616713905692,
+        "win_rate": 1.0
+      },
+      {
+        "exit_reason": "TP1",
+        "trades": 2,
+        "net_pnl": 1.1756951499999984,
+        "expectancy_r": 0.773340289318799,
+        "win_rate": 1.0
+      },
+      {
+        "exit_reason": "STOP",
+        "trades": 2,
+        "net_pnl": -3.0147402267151953,
+        "expectancy_r": -1.3710425739302363,
+        "win_rate": 0.0
+      },
+      {
+        "exit_reason": "BREAKOUT",
+        "trades": 39,
+        "net_pnl": -29.774582979479217,
+        "expectancy_r": -0.8506802145791728,
+        "win_rate": 0.0
+      }
+    ],
+    "by_hour": [
+      {
+        "hour": 4,
+        "trades": 5,
+        "net_pnl": 1.9477552893700167,
+        "expectancy_r": 0.39680608055669514,
+        "win_rate": 0.8
+      },
+      {
+        "hour": 22,
+        "trades": 3,
+        "net_pnl": 1.7380117689251358,
+        "expectancy_r": 0.5736465360411693,
+        "win_rate": 1.0
+      },
+      {
+        "hour": 3,
+        "trades": 4,
+        "net_pnl": 1.5862504786600549,
+        "expectancy_r": 0.3555726080479693,
+        "win_rate": 0.75
+      },
+      {
+        "hour": 12,
+        "trades": 2,
+        "net_pnl": 0.37685495000000446,
+        "expectancy_r": 0.19081744768455933,
+        "win_rate": 1.0
+      },
+      {
+        "hour": 21,
+        "trades": 4,
+        "net_pnl": 0.3108734276639838,
+        "expectancy_r": 0.11822686219837178,
+        "win_rate": 0.75
+      },
+      {
+        "hour": 11,
+        "trades": 4,
+        "net_pnl": 0.26312714193475073,
+        "expectancy_r": -0.02859808268392533,
+        "win_rate": 0.75
+      },
+      {
+        "hour": 6,
+        "trades": 1,
+        "net_pnl": 0.19930320384000313,
+        "expectancy_r": 0.2227532959563501,
+        "win_rate": 1.0
+      },
+      {
+        "hour": 8,
+        "trades": 1,
+        "net_pnl": 0.1281887000000026,
+        "expectancy_r": 0.16605112652016593,
+        "win_rate": 1.0
+      },
+      {
+        "hour": 0,
+        "trades": 3,
+        "net_pnl": 0.10009142999999932,
+        "expectancy_r": 0.07300698366875542,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "hour": 16,
+        "trades": 8,
+        "net_pnl": 0.07284940999999989,
+        "expectancy_r": 0.005484080746513881,
+        "win_rate": 0.625
+      },
+      {
+        "hour": 1,
+        "trades": 7,
+        "net_pnl": -0.08628786500000574,
+        "expectancy_r": -0.0033840230707550107,
+        "win_rate": 0.5714285714285714
+      },
+      {
+        "hour": 10,
+        "trades": 5,
+        "net_pnl": -0.08790889999998946,
+        "expectancy_r": -0.00448330407810833,
+        "win_rate": 0.8
+      },
+      {
+        "hour": 18,
+        "trades": 8,
+        "net_pnl": -0.15506449499999775,
+        "expectancy_r": 0.020978467586107663,
+        "win_rate": 0.625
+      },
+      {
+        "hour": 19,
+        "trades": 3,
+        "net_pnl": -0.2768496099999991,
+        "expectancy_r": -0.09046886816602155,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "hour": 9,
+        "trades": 5,
+        "net_pnl": -0.3642289100000134,
+        "expectancy_r": -0.09883720588341012,
+        "win_rate": 0.6
+      },
+      {
+        "hour": 13,
+        "trades": 3,
+        "net_pnl": -0.39337885000000505,
+        "expectancy_r": -0.174071412052482,
+        "win_rate": 0.6666666666666666
+      },
+      {
+        "hour": 2,
+        "trades": 4,
+        "net_pnl": -0.6707445125179984,
+        "expectancy_r": -0.20506187033198583,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 14,
+        "trades": 4,
+        "net_pnl": -0.6767064265680053,
+        "expectancy_r": -0.14747553330626445,
+        "win_rate": 0.5
+      },
+      {
+        "hour": 23,
+        "trades": 2,
+        "net_pnl": -1.169220487852003,
+        "expectancy_r": -0.8869962981694082,
+        "win_rate": 0.0
+      },
+      {
+        "hour": 15,
+        "trades": 7,
+        "net_pnl": -1.4215973175962053,
+        "expectancy_r": -0.18742933110848456,
+        "win_rate": 0.5714285714285714
+      },
+      {
+        "hour": 5,
+        "trades": 4,
+        "net_pnl": -1.6136133800000043,
+        "expectancy_r": -0.43345839784409146,
+        "win_rate": 0.25
+      },
+      {
+        "hour": 17,
+        "trades": 3,
+        "net_pnl": -1.7140362500000004,
+        "expectancy_r": -0.5314537137258449,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "hour": 20,
+        "trades": 6,
+        "net_pnl": -1.9614053000000045,
+        "expectancy_r": -0.34596489499436417,
+        "win_rate": 0.3333333333333333
+      },
+      {
+        "hour": 7,
+        "trades": 5,
+        "net_pnl": -3.9157074107151897,
+        "expectancy_r": -0.833605986201268,
+        "win_rate": 0.2
+      }
+    ],
+    "avg_holding_hours": 1.8125412541254122,
+    "exposure_pct": null,
+    "cagr_pct": -34.584209983546764,
+    "std_r": 0.7039047871238194,
+    "bayes_win_rate_lower": 0.5119079003027158,
+    "equity_residual_usdt": -0.010901335144528623
+  }
+}

@@ -1,0 +1,279 @@
+{
+  "baseline": {
+    "trades": 253,
+    "net_pnl": -34.76852011355916,
+    "profit_factor": 0.6250666834627658,
+    "expectancy_r": -0.16972128021384564,
+    "ci90": [
+      -0.24792883555849712,
+      -0.09376772430809624
+    ],
+    "win_rate": 0.48221343873517786,
+    "positive_folds": 0,
+    "folds": [
+      "2024-11-01",
+      "2025-04-01",
+      "2025-09-01",
+      "2026-02-01"
+    ],
+    "fold_net": [
+      -5.8983,
+      -10.2295,
+      -9.2246,
+      -9.4161
+    ],
+    "fees": 10.814947999999998,
+    "funding": 0.0035134764408302037,
+    "max_dd_usdt": 38.54367601088015,
+    "enter_signals": 253,
+    "cancel_signals": 0,
+    "fill_rate": 1.0
+  },
+  "random": {
+    "trades": 198,
+    "net_pnl": -29.70098304432112,
+    "profit_factor": 0.7836065602410273,
+    "expectancy_r": -0.14820897451050766,
+    "ci90": [
+      -0.30602078133910227,
+      0.013944053709214383
+    ],
+    "win_rate": 0.3484848484848485,
+    "positive_folds": 0,
+    "folds": [
+      "2024-11-01",
+      "2025-04-01",
+      "2025-09-01",
+      "2026-02-01"
+    ],
+    "fold_net": [
+      -5.5085,
+      -9.3819,
+      -6.7911,
+      -8.0196
+    ],
+    "fees": 13.6337678,
+    "funding": -0.07528641432133498,
+    "max_dd_usdt": 38.475720640284834,
+    "enter_signals": 198,
+    "cancel_signals": 0,
+    "fill_rate": 1.0
+  },
+  "hypotheses": {
+    "H1": {
+      "gates": {
+        "h1a": {
+          "trades_ge_100": true,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": true,
+          "beats_random": true,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 3,
+          "pf_stress_ge_1_00": false,
+          "configuration_verdict": false
+        },
+        "h1b": {
+          "trades_ge_100": true,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": true,
+          "beats_random": true,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 1,
+          "configuration_verdict": false
+        },
+        "h1c": {
+          "trades_ge_100": true,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": true,
+          "beats_random": true,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 1,
+          "configuration_verdict": false
+        },
+        "h1d": {
+          "trades_ge_100": true,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": false,
+          "beats_random": true,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 1,
+          "configuration_verdict": false
+        }
+      },
+      "best": "h1a",
+      "best_verdict": false,
+      "eligible": [],
+      "stress": {
+        "trades": 606,
+        "net_pnl": -29.6461406131219,
+        "profit_factor": 0.8598410621351311,
+        "expectancy_r": -0.05071581938631658,
+        "ci90": [
+          -0.10195817788882341,
+          -0.0020737933485063063
+        ],
+        "win_rate": 0.5841584158415841,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -9.5164,
+          -3.6001,
+          -7.8012,
+          -8.7285
+        ],
+        "fees": 30.19378,
+        "funding": 0.2171869868778796,
+        "max_dd_usdt": 32.5484332362812,
+        "enter_signals": 926,
+        "cancel_signals": 314,
+        "rejected_entries": 6,
+        "fill_rate": 0.6544276457883369
+      }
+    },
+    "H2": {
+      "gates": {
+        "h2a": {
+          "trades_ge_100": false,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": false,
+          "beats_random": false,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 1,
+          "pf_stress_ge_1_00": false,
+          "configuration_verdict": false
+        },
+        "h2b": {
+          "trades_ge_100": false,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": false,
+          "beats_random": false,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 2,
+          "configuration_verdict": false
+        },
+        "h2c": {
+          "trades_ge_100": false,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": false,
+          "beats_random": false,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 2,
+          "configuration_verdict": false
+        },
+        "h2d": {
+          "trades_ge_100": false,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": false,
+          "beats_random": false,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 1,
+          "configuration_verdict": false
+        }
+      },
+      "best": "h2a",
+      "best_verdict": false,
+      "eligible": [],
+      "stress": {
+        "trades": 27,
+        "net_pnl": -8.895112931845057,
+        "profit_factor": 0.4184508254923739,
+        "expectancy_r": -0.34515668347113115,
+        "ci90": [
+          -0.6000184408069477,
+          -0.07837958841893843
+        ],
+        "win_rate": 0.37037037037037035,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -1.871,
+          -5.1008,
+          -0.3199,
+          -1.6034
+        ],
+        "fees": 1.89100348,
+        "funding": 0.006645058154930001,
+        "max_dd_usdt": 11.732421442775074,
+        "enter_signals": 27,
+        "cancel_signals": 0,
+        "fill_rate": 1.0
+      }
+    },
+    "H3": {
+      "gates": {
+        "h3a": {
+          "trades_ge_100": false,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": false,
+          "beats_random": true,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 1,
+          "configuration_verdict": false
+        },
+        "h3b": {
+          "trades_ge_100": false,
+          "pf_ge_1_10": false,
+          "ci90_above_baseline": true,
+          "beats_random": true,
+          "plateau": false,
+          "positive_neighbors": 0,
+          "neighbors": 1,
+          "pf_stress_ge_1_00": false,
+          "configuration_verdict": false
+        }
+      },
+      "best": "h3b",
+      "best_verdict": false,
+      "eligible": [],
+      "stress": {
+        "trades": 89,
+        "net_pnl": -5.895371265881491,
+        "profit_factor": 0.7951852909052516,
+        "expectancy_r": -0.07024024028632428,
+        "ci90": [
+          -0.1860171497738973,
+          0.0476177214465692
+        ],
+        "win_rate": 0.5168539325842697,
+        "positive_folds": 2,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -6.5732,
+          -1.6988,
+          0.3887,
+          1.988
+        ],
+        "fees": 4.4161259699999995,
+        "funding": 0.0066657141184602985,
+        "max_dd_usdt": 7.725244388985424,
+        "enter_signals": 89,
+        "cancel_signals": 0,
+        "fill_rate": 1.0
+      }
+    }
+  }
+}

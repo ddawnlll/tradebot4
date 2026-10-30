@@ -1,0 +1,1906 @@
+{
+  "by_tier": {
+    "equity_20_usdt": {
+      "by_source": {
+        "champion_dev": {
+          "approved": 100,
+          "binding_constraint_counts": {
+            "notional": 88,
+            "step": 15
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 88,
+            "STEP_SIZE_DISCRETIZATION": 15
+          },
+          "candidates": 103,
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 21.500000000000057,
+          "max_e_required_usdt": 22.653964000000055,
+          "reason_counts": {
+            "below_min_notional": 3,
+            "below_min_qty": 3,
+            "step_rounding": 3
+          },
+          "rejected": 3,
+          "unknown_field_counts": {}
+        },
+        "oos": {
+          "approved": 55,
+          "binding_constraint_counts": {
+            "notional": 55
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 55
+          },
+          "candidates": 55,
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.9637792584999025,
+          "max_e_required_usdt": 6.789139418499902,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        }
+      },
+      "by_symbol": {
+        "1000FLOKIUSDT": {
+          "approved": 5,
+          "binding_constraint_counts": {
+            "notional": 5
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 5
+          },
+          "candidates": 5,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 5,
+            "equity_headroom_usdt": 15.807312362477198,
+            "max_required_equity_usdt": 4.192687637522802,
+            "min_required_equity_usdt": 3.456684600627123
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.3607247575228025,
+          "max_e_required_usdt": 4.192687637522802,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "1000PEPEUSDT": {
+          "approved": 8,
+          "binding_constraint_counts": {
+            "notional": 8
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 8
+          },
+          "candidates": 8,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 8,
+            "equity_headroom_usdt": 16.01448125167473,
+            "max_required_equity_usdt": 3.985518748325271,
+            "min_required_equity_usdt": 3.346493515974115
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.05340341508251,
+          "max_e_required_usdt": 3.985518748325271,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "1000SATSUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 16.40164006762211,
+            "max_required_equity_usdt": 3.598359932377889,
+            "min_required_equity_usdt": 3.3482255183678875
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.460276781137889,
+          "max_e_required_usdt": 3.598359932377889,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "1000SHIBUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 15.446253656452868,
+            "max_required_equity_usdt": 4.553746343547132,
+            "min_required_equity_usdt": 3.3478097547537233
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.8211151995471324,
+          "max_e_required_usdt": 4.553746343547132,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ADAUSDT": {
+          "approved": 5,
+          "binding_constraint_counts": {
+            "notional": 5
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 5
+          },
+          "candidates": 5,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 5,
+            "equity_headroom_usdt": 16.408634212791263,
+            "max_required_equity_usdt": 3.5913657872087374,
+            "min_required_equity_usdt": 3.380837055615245
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.037375233339716,
+          "max_e_required_usdt": 3.5913657872087374,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "APEUSDT": {
+          "approved": 8,
+          "binding_constraint_counts": {
+            "notional": 8
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 8
+          },
+          "candidates": 8,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 8,
+            "equity_headroom_usdt": 16.512013600193743,
+            "max_required_equity_usdt": 3.4879863998062577,
+            "min_required_equity_usdt": 3.338122384193187
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.252682399806258,
+          "max_e_required_usdt": 3.4879863998062577,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "APTUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 16.435064523859495,
+            "max_required_equity_usdt": 3.564935476140504,
+            "min_required_equity_usdt": 3.3682597287533316
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.410750276140504,
+          "max_e_required_usdt": 3.564935476140504,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "AVAXUSDT": {
+          "approved": 0,
+          "binding_constraint_counts": {
+            "step": 3
+          },
+          "binding_constraint_v8_counts": {
+            "STEP_SIZE_DISCRETIZATION": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 2,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": -2.6539640000000553,
+            "max_required_equity_usdt": 22.653964000000055,
+            "min_required_equity_usdt": 12.71020000000005
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 21.500000000000057,
+          "max_e_required_usdt": 22.653964000000055,
+          "reason_counts": {
+            "below_min_notional": 3,
+            "below_min_qty": 3,
+            "step_rounding": 3
+          },
+          "rejected": 3,
+          "unknown_field_counts": {}
+        },
+        "BCHUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 10.86513287685284,
+            "max_required_equity_usdt": 9.13486712314716,
+            "min_required_equity_usdt": 6.696091247951955
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 7.68421288314716,
+          "max_e_required_usdt": 9.13486712314716,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "BIGTIMEUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 15.581522354743992,
+            "max_required_equity_usdt": 4.418477645256008,
+            "min_required_equity_usdt": 3.4076228675315408
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.653641433256008,
+          "max_e_required_usdt": 4.418477645256008,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "BNBUSDT": {
+          "approved": 1,
+          "binding_constraint_counts": {
+            "step": 1
+          },
+          "binding_constraint_v8_counts": {
+            "STEP_SIZE_DISCRETIZATION": 1
+          },
+          "candidates": 1,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 1,
+            "equity_headroom_usdt": 15.56216093068419,
+            "max_required_equity_usdt": 4.437839069315809,
+            "min_required_equity_usdt": 4.437839069315809
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.09667186931581,
+          "max_e_required_usdt": 4.437839069315809,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "BOMEUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 15.777145657926301,
+            "max_required_equity_usdt": 4.222854342073699,
+            "min_required_equity_usdt": 3.7193317083634168
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.3993074024736987,
+          "max_e_required_usdt": 4.222854342073699,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "DOGEUSDT": {
+          "approved": 5,
+          "binding_constraint_counts": {
+            "notional": 5
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 5
+          },
+          "candidates": 5,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 5,
+            "equity_headroom_usdt": 16.30206550061241,
+            "max_required_equity_usdt": 3.69793449938759,
+            "min_required_equity_usdt": 3.3687556214055885
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.3211623786139852,
+          "max_e_required_usdt": 3.69793449938759,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "DOTUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 16.505221418239646,
+            "max_required_equity_usdt": 3.4947785817603525,
+            "min_required_equity_usdt": 3.348487988453302
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.2690494617603525,
+          "max_e_required_usdt": 3.4947785817603525,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ENAUSDT": {
+          "approved": 10,
+          "binding_constraint_counts": {
+            "notional": 10
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 10
+          },
+          "candidates": 10,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 10,
+            "equity_headroom_usdt": 15.731084605071553,
+            "max_required_equity_usdt": 4.268915394928447,
+            "min_required_equity_usdt": 3.346605628907554
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.4778644349284473,
+          "max_e_required_usdt": 4.268915394928447,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ETHUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 12.85268134801812,
+            "max_required_equity_usdt": 7.14731865198188,
+            "min_required_equity_usdt": 6.648686943347097
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 4.83165705198188,
+          "max_e_required_usdt": 7.14731865198188,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "FETUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 16.618914760320223,
+            "max_required_equity_usdt": 3.3810852396797753,
+            "min_required_equity_usdt": 3.341455751298059
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.949182039679775,
+          "max_e_required_usdt": 3.3810852396797753,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "LINKUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 10.578337325875498,
+            "max_required_equity_usdt": 9.421662674124502,
+            "min_required_equity_usdt": 6.789139418499902
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 8.031623394124502,
+          "max_e_required_usdt": 9.421662674124502,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "MASKUSDT": {
+          "approved": 1,
+          "binding_constraint_counts": {
+            "notional": 1
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 1
+          },
+          "candidates": 1,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 1,
+            "equity_headroom_usdt": 16.402386543590556,
+            "max_required_equity_usdt": 3.597613456409444,
+            "min_required_equity_usdt": 3.597613456409444
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.0760342564094447,
+          "max_e_required_usdt": 3.597613456409444,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "MEWUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 16.636741829936856,
+            "max_required_equity_usdt": 3.363258170063143,
+            "min_required_equity_usdt": 3.347182724410541
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.7086837084105408,
+          "max_e_required_usdt": 3.363258170063143,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "MKRUSDT": {
+          "approved": 1,
+          "binding_constraint_counts": {
+            "notional": 1
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 1
+          },
+          "candidates": 1,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 1,
+            "equity_headroom_usdt": 16.69216787702899,
+            "max_required_equity_usdt": 3.3078321229710115,
+            "min_required_equity_usdt": 3.3078321229710115
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.7428505229710114,
+          "max_e_required_usdt": 3.3078321229710115,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "NEARUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "notional": 7
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 16.029898341192794,
+            "max_required_equity_usdt": 3.970101658807205,
+            "min_required_equity_usdt": 3.309559632864717
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.7549996328647173,
+          "max_e_required_usdt": 3.970101658807205,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "NEIROETHUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 14.422259500458892,
+            "max_required_equity_usdt": 5.5777404995411075,
+            "min_required_equity_usdt": 3.356242684218039
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 5.020639339541107,
+          "max_e_required_usdt": 5.5777404995411075,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "NEIROUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 14.914683403241337,
+            "max_required_equity_usdt": 5.085316596758662,
+            "min_required_equity_usdt": 3.348374099427329
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 4.457185061398662,
+          "max_e_required_usdt": 5.085316596758662,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ORDIUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 16.649546752296708,
+            "max_required_equity_usdt": 3.3504532477032942,
+            "min_required_equity_usdt": 3.2859412324957615
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.8435619840499118,
+          "max_e_required_usdt": 3.3504532477032942,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "PEOPLEUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "notional": 7
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 16.443566603201944,
+            "max_required_equity_usdt": 3.5564333967980555,
+            "min_required_equity_usdt": 3.349112428962675
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.1415048033097266,
+          "max_e_required_usdt": 3.5564333967980555,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "POPCATUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 15.883951474281519,
+            "max_required_equity_usdt": 4.116048525718481,
+            "min_required_equity_usdt": 3.5124838281938917
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.282087565718481,
+          "max_e_required_usdt": 4.116048525718481,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "PYTHUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 16.468686161631027,
+            "max_required_equity_usdt": 3.5313138383689715,
+            "min_required_equity_usdt": 3.4230225841337436
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.3531695983689715,
+          "max_e_required_usdt": 3.5313138383689715,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "SOLUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 16.226031885454184,
+            "max_required_equity_usdt": 3.7739681145458146,
+            "min_required_equity_usdt": 3.3572773291483746
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.8593809291483747,
+          "max_e_required_usdt": 3.7739681145458146,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "SUIUSDT": {
+          "approved": 4,
+          "binding_constraint_counts": {
+            "notional": 4
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 4
+          },
+          "candidates": 4,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 4,
+            "equity_headroom_usdt": 16.06563681134448,
+            "max_required_equity_usdt": 3.9343631886555195,
+            "min_required_equity_usdt": 3.3743982819632397
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.0055735086555195,
+          "max_e_required_usdt": 3.9343631886555195,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "TIAUSDT": {
+          "approved": 11,
+          "binding_constraint_counts": {
+            "notional": 7,
+            "step": 4
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7,
+            "STEP_SIZE_DISCRETIZATION": 4
+          },
+          "candidates": 11,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 11,
+            "equity_headroom_usdt": 14.713200000000011,
+            "max_required_equity_usdt": 5.286799999999988,
+            "min_required_equity_usdt": 3.2943183100983378
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 4.303999999999988,
+          "max_e_required_usdt": 5.286799999999988,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "TURBOUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 16.445492733126247,
+            "max_required_equity_usdt": 3.554507266873752,
+            "min_required_equity_usdt": 3.552842546723312
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.376242178873752,
+          "max_e_required_usdt": 3.554507266873752,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "UNIUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "step": 7
+          },
+          "binding_constraint_v8_counts": {
+            "STEP_SIZE_DISCRETIZATION": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 11.800565981793353,
+            "max_required_equity_usdt": 8.199434018206647,
+            "min_required_equity_usdt": 5.742460000000004
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 7.2876980182066475,
+          "max_e_required_usdt": 8.199434018206647,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "WIFUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "notional": 7
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 16.070289883269787,
+            "max_required_equity_usdt": 3.929710116730212,
+            "min_required_equity_usdt": 3.34638301939507
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.9967016767302126,
+          "max_e_required_usdt": 3.929710116730212,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "WLDUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 16.196063144727734,
+            "max_required_equity_usdt": 3.803936855272266,
+            "min_required_equity_usdt": 3.374862179176488
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.8966108552722662,
+          "max_e_required_usdt": 3.803936855272266,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "XRPUSDT": {
+          "approved": 4,
+          "binding_constraint_counts": {
+            "notional": 4
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 4
+          },
+          "candidates": 4,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 4,
+            "equity_headroom_usdt": 16.40416574644012,
+            "max_required_equity_usdt": 3.5958342535598806,
+            "min_required_equity_usdt": 3.510193832166821
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.4573363335598803,
+          "max_e_required_usdt": 3.5958342535598806,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        }
+      },
+      "capital": {
+        "candidates_requiring_more_than_tier": 2,
+        "candidates_with_known_required_equity": 158,
+        "equity_headroom_usdt": -2.6539640000000553,
+        "max_required_equity_usdt": 22.653964000000055,
+        "min_required_equity_usdt": 3.2859412324957615
+      },
+      "equity_usdt": 20.0,
+      "summary": {
+        "approved": 155,
+        "binding_constraint_counts": {
+          "notional": 143,
+          "step": 15
+        },
+        "binding_constraint_v8_counts": {
+          "MIN_NOTIONAL_LIMIT": 143,
+          "STEP_SIZE_DISCRETIZATION": 15
+        },
+        "candidates": 158,
+        "fee_reserve_unknown": 0,
+        "max_e_crit_usdt": 21.500000000000057,
+        "max_e_required_usdt": 22.653964000000055,
+        "reason_counts": {
+          "below_min_notional": 3,
+          "below_min_qty": 3,
+          "step_rounding": 3
+        },
+        "rejected": 3,
+        "unknown_field_counts": {}
+      }
+    },
+    "equity_500_usdt": {
+      "by_source": {
+        "champion_dev": {
+          "approved": 103,
+          "binding_constraint_counts": {
+            "notional": 88,
+            "step": 15
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 88,
+            "STEP_SIZE_DISCRETIZATION": 15
+          },
+          "candidates": 103,
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 21.500000000000057,
+          "max_e_required_usdt": 87.90157054334709,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "oos": {
+          "approved": 55,
+          "binding_constraint_counts": {
+            "notional": 55
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 55
+          },
+          "candidates": 55,
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.9637792584999025,
+          "max_e_required_usdt": 91.80408484795194,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        }
+      },
+      "by_symbol": {
+        "1000FLOKIUSDT": {
+          "approved": 5,
+          "binding_constraint_counts": {
+            "notional": 5
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 5
+          },
+          "candidates": 5,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 5,
+            "equity_headroom_usdt": 434.64289632958474,
+            "max_required_equity_usdt": 65.35710367041526,
+            "min_required_equity_usdt": 24.1889884375228
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.3607247575228025,
+          "max_e_required_usdt": 65.35710367041526,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "1000PEPEUSDT": {
+          "approved": 8,
+          "binding_constraint_counts": {
+            "notional": 8
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 8
+          },
+          "candidates": 8,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 8,
+            "equity_headroom_usdt": 422.21382015247474,
+            "max_required_equity_usdt": 77.78617984752526,
+            "min_required_equity_usdt": 25.978590936682508
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.05340341508251,
+          "max_e_required_usdt": 77.78617984752526,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "1000SATSUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 457.7100170390721,
+            "max_required_equity_usdt": 42.28998296092789,
+            "min_required_equity_usdt": 30.91235993237789
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.460276781137889,
+          "max_e_required_usdt": 42.28998296092789,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "1000SHIBUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 426.4205408899291,
+            "max_required_equity_usdt": 73.57945911007091,
+            "min_required_equity_usdt": 22.14035613954713
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.8211151995471324,
+          "max_e_required_usdt": 73.57945911007091,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ADAUSDT": {
+          "approved": 5,
+          "binding_constraint_counts": {
+            "notional": 5
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 5
+          },
+          "candidates": 5,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 5,
+            "equity_headroom_usdt": 437.4815758127913,
+            "max_required_equity_usdt": 62.51842418720874,
+            "min_required_equity_usdt": 36.377163233339715
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.037375233339716,
+          "max_e_required_usdt": 62.51842418720874,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "APEUSDT": {
+          "approved": 8,
+          "binding_constraint_counts": {
+            "notional": 8
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 8
+          },
+          "candidates": 8,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 8,
+            "equity_headroom_usdt": 451.6074626865672,
+            "max_required_equity_usdt": 48.39253731343282,
+            "min_required_equity_usdt": 33.29998959980626
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.252682399806258,
+          "max_e_required_usdt": 48.39253731343282,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "APTUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 441.19869556278763,
+            "max_required_equity_usdt": 58.80130443721234,
+            "min_required_equity_usdt": 31.430263876140504
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.410750276140504,
+          "max_e_required_usdt": 58.80130443721234,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "AVAXUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "step": 3
+          },
+          "binding_constraint_v8_counts": {
+            "STEP_SIZE_DISCRETIZATION": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 427.5111999999999,
+            "max_required_equity_usdt": 72.48880000000005,
+            "min_required_equity_usdt": 48.04117200000006
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 21.500000000000057,
+          "max_e_required_usdt": 72.48880000000005,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "BCHUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 408.1959151520481,
+            "max_required_equity_usdt": 91.80408484795194,
+            "min_required_equity_usdt": 44.113142203147156
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 7.68421288314716,
+          "max_e_required_usdt": 91.80408484795194,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "BIGTIMEUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 447.79974247246844,
+            "max_required_equity_usdt": 52.200257527531534,
+            "min_required_equity_usdt": 22.808729357256006
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.653641433256008,
+          "max_e_required_usdt": 52.200257527531534,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "BNBUSDT": {
+          "approved": 1,
+          "binding_constraint_counts": {
+            "step": 1
+          },
+          "binding_constraint_v8_counts": {
+            "STEP_SIZE_DISCRETIZATION": 1
+          },
+          "candidates": 1,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 1,
+            "equity_headroom_usdt": 414.4460461306842,
+            "max_required_equity_usdt": 85.55395386931579,
+            "min_required_equity_usdt": 85.55395386931579
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.09667186931581,
+          "max_e_required_usdt": 85.55395386931579,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "BOMEUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 423.49808430037604,
+            "max_required_equity_usdt": 76.50191569962395,
+            "min_required_equity_usdt": 23.9914766700737
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.3993074024736987,
+          "max_e_required_usdt": 76.50191569962395,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "DOGEUSDT": {
+          "approved": 5,
+          "binding_constraint_counts": {
+            "notional": 5
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 5
+          },
+          "candidates": 5,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 5,
+            "equity_headroom_usdt": 432.9520677406124,
+            "max_required_equity_usdt": 67.04793225938758,
+            "min_required_equity_usdt": 32.46995349861398
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.3211623786139852,
+          "max_e_required_usdt": 67.04793225938758,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "DOTUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 454.3630324915467,
+            "max_required_equity_usdt": 45.63696750845331,
+            "min_required_equity_usdt": 33.10330018176035
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.2690494617603525,
+          "max_e_required_usdt": 45.63696750845331,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ENAUSDT": {
+          "approved": 10,
+          "binding_constraint_counts": {
+            "notional": 10
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 10
+          },
+          "candidates": 10,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 10,
+            "equity_headroom_usdt": 445.15716941388365,
+            "max_required_equity_usdt": 54.842830586116335,
+            "min_required_equity_usdt": 23.598073634928447
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.4778644349284473,
+          "max_e_required_usdt": 54.842830586116335,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ETHUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 412.0984294566529,
+            "max_required_equity_usdt": 87.90157054334709,
+            "min_required_equity_usdt": 62.72319705198188
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 4.83165705198188,
+          "max_e_required_usdt": 87.90157054334709,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "FETUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 451.7276385051866,
+            "max_required_equity_usdt": 48.27236149481344,
+            "min_required_equity_usdt": 37.85938363967977
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.949182039679775,
+          "max_e_required_usdt": 48.27236149481344,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "LINKUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 425.39893906150013,
+            "max_required_equity_usdt": 74.60106093849988,
+            "min_required_equity_usdt": 42.8885725141245
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 8.031623394124502,
+          "max_e_required_usdt": 74.60106093849988,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "MASKUSDT": {
+          "approved": 1,
+          "binding_constraint_counts": {
+            "notional": 1
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 1
+          },
+          "candidates": 1,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 1,
+            "equity_headroom_usdt": 433.9032449435906,
+            "max_required_equity_usdt": 66.09675505640942,
+            "min_required_equity_usdt": 66.09675505640942
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.0760342564094447,
+          "max_e_required_usdt": 66.09675505640942,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "MEWUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 452.26098646193685,
+            "max_required_equity_usdt": 47.73901353806314,
+            "min_required_equity_usdt": 42.675756316410535
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.7086837084105408,
+          "max_e_required_usdt": 47.73901353806314,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "MKRUSDT": {
+          "approved": 1,
+          "binding_constraint_counts": {
+            "notional": 1
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 1
+          },
+          "candidates": 1,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 1,
+            "equity_headroom_usdt": 458.117486277029,
+            "max_required_equity_usdt": 41.882513722971005,
+            "min_required_equity_usdt": 41.882513722971005
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.7428505229710114,
+          "max_e_required_usdt": 41.882513722971005,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "NEARUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "notional": 7
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 421.45542634119283,
+            "max_required_equity_usdt": 78.5445736588072,
+            "min_required_equity_usdt": 41.63917963286472
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.7549996328647173,
+          "max_e_required_usdt": 78.5445736588072,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "NEIROETHUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 459.48479547578194,
+            "max_required_equity_usdt": 40.51520452421804,
+            "min_required_equity_usdt": 18.962752139541102
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 5.020639339541107,
+          "max_e_required_usdt": 40.51520452421804,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "NEIROUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 445.76366298447056,
+            "max_required_equity_usdt": 54.23633701552946,
+            "min_required_equity_usdt": 20.16212484283866
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 4.457185061398662,
+          "max_e_required_usdt": 54.23633701552946,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "ORDIUSDT": {
+          "approved": 6,
+          "binding_constraint_counts": {
+            "notional": 6
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 6
+          },
+          "candidates": 6,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 6,
+            "equity_headroom_usdt": 453.79622879949943,
+            "max_required_equity_usdt": 46.20377120050059,
+            "min_required_equity_usdt": 39.773442784049905
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.8435619840499118,
+          "max_e_required_usdt": 46.20377120050059,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "PEOPLEUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "notional": 7
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 439.31883460320194,
+            "max_required_equity_usdt": 60.68116539679806,
+            "min_required_equity_usdt": 34.82686114330972
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.1415048033097266,
+          "max_e_required_usdt": 60.68116539679806,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "POPCATUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 467.3033222518061,
+            "max_required_equity_usdt": 32.69667774819389,
+            "min_required_equity_usdt": 24.60021460571848
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.282087565718481,
+          "max_e_required_usdt": 32.69667774819389,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "PYTHUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 446.51095805586624,
+            "max_required_equity_usdt": 53.48904194413374,
+            "min_required_equity_usdt": 32.091601678368974
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.3531695983689715,
+          "max_e_required_usdt": 53.48904194413374,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "SOLUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 429.7856942854542,
+            "max_required_equity_usdt": 70.2143057145458,
+            "min_required_equity_usdt": 39.46174572914837
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 1.8593809291483747,
+          "max_e_required_usdt": 70.2143057145458,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "SUIUSDT": {
+          "approved": 4,
+          "binding_constraint_counts": {
+            "notional": 4
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 4
+          },
+          "candidates": 4,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 4,
+            "equity_headroom_usdt": 449.63381021737837,
+            "max_required_equity_usdt": 50.36618978262164,
+            "min_required_equity_usdt": 26.284853308655514
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 3.0055735086555195,
+          "max_e_required_usdt": 50.36618978262164,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "TIAUSDT": {
+          "approved": 11,
+          "binding_constraint_counts": {
+            "notional": 7,
+            "step": 4
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7,
+            "STEP_SIZE_DISCRETIZATION": 4
+          },
+          "candidates": 11,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 11,
+            "equity_headroom_usdt": 450.89049408990167,
+            "max_required_equity_usdt": 49.109505910098335,
+            "min_required_equity_usdt": 32.334695447891534
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 4.303999999999988,
+          "max_e_required_usdt": 49.109505910098335,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "TURBOUSDT": {
+          "approved": 2,
+          "binding_constraint_counts": {
+            "notional": 2
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 2
+          },
+          "candidates": 2,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 2,
+            "equity_headroom_usdt": 468.13024748367667,
+            "max_required_equity_usdt": 31.86975251632331,
+            "min_required_equity_usdt": 31.834330038073748
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.376242178873752,
+          "max_e_required_usdt": 31.86975251632331,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "UNIUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "step": 7
+          },
+          "binding_constraint_v8_counts": {
+            "STEP_SIZE_DISCRETIZATION": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 446.69604,
+            "max_required_equity_usdt": 53.303960000000004,
+            "min_required_equity_usdt": 34.315
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 7.2876980182066475,
+          "max_e_required_usdt": 53.303960000000004,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "WIFUSDT": {
+          "approved": 7,
+          "binding_constraint_counts": {
+            "notional": 7
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 7
+          },
+          "candidates": 7,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 7,
+            "equity_headroom_usdt": 441.97813921941844,
+            "max_required_equity_usdt": 58.02186078058154,
+            "min_required_equity_usdt": 26.355037236730208
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.9967016767302126,
+          "max_e_required_usdt": 58.02186078058154,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "WLDUSDT": {
+          "approved": 3,
+          "binding_constraint_counts": {
+            "notional": 3
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 3
+          },
+          "candidates": 3,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 3,
+            "equity_headroom_usdt": 450.03332822082353,
+            "max_required_equity_usdt": 49.96667177917648,
+            "min_required_equity_usdt": 27.03148245527226
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.8966108552722662,
+          "max_e_required_usdt": 49.96667177917648,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        },
+        "XRPUSDT": {
+          "approved": 4,
+          "binding_constraint_counts": {
+            "notional": 4
+          },
+          "binding_constraint_v8_counts": {
+            "MIN_NOTIONAL_LIMIT": 4
+          },
+          "candidates": 4,
+          "capital": {
+            "candidates_requiring_more_than_tier": 0,
+            "candidates_with_known_required_equity": 4,
+            "equity_headroom_usdt": 467.0913461678332,
+            "max_required_equity_usdt": 32.90865383216682,
+            "min_required_equity_usdt": 30.940979773559874
+          },
+          "fee_reserve_unknown": 0,
+          "max_e_crit_usdt": 2.4573363335598803,
+          "max_e_required_usdt": 32.90865383216682,
+          "reason_counts": {},
+          "rejected": 0,
+          "unknown_field_counts": {}
+        }
+      },
+      "capital": {
+        "candidates_requiring_more_than_tier": 0,
+        "candidates_with_known_required_equity": 158,
+        "equity_headroom_usdt": 408.1959151520481,
+        "max_required_equity_usdt": 91.80408484795194,
+        "min_required_equity_usdt": 18.962752139541102
+      },
+      "equity_usdt": 500.0,
+      "summary": {
+        "approved": 158,
+        "binding_constraint_counts": {
+          "notional": 143,
+          "step": 15
+        },
+        "binding_constraint_v8_counts": {
+          "MIN_NOTIONAL_LIMIT": 143,
+          "STEP_SIZE_DISCRETIZATION": 15
+        },
+        "candidates": 158,
+        "fee_reserve_unknown": 0,
+        "max_e_crit_usdt": 21.500000000000057,
+        "max_e_required_usdt": 91.80408484795194,
+        "reason_counts": {},
+        "rejected": 0,
+        "unknown_field_counts": {}
+      }
+    }
+  },
+  "data_gaps": [
+    "77 trade rows had a final/breakeven stop on the wrong side of entry; initial stop distance was derived from recorded risk_usdt/quantity and labelled stop_distance_source=risk_usdt_per_quantity"
+  ],
+  "diagnostic": {
+    "formula_source": "v8-core usdm_sim::capital_viability (E_step, E_notional, E_margin, E_crit) with an explicit separate fee/slippage reserve term",
+    "holdout_touched": false,
+    "not_a_guarantee": "This is a static capital-viability diagnostic of historical order envelopes. It is not a guarantee of tradability, fill probability, or profitability, and it does not size positions or change strategy behaviour.",
+    "sealed_holdout_note": "Only validation keys champion_dev and oos were read; the vault was not opened.",
+    "separate_scenarios": true,
+    "static_diagnostic": true,
+    "tier_note": "The 20 USDT and 500 USDT tiers are evaluated independently with their own equity. The 500 USDT tier is not a scaled copy of the 20 USDT tier."
+  },
+  "generated": "2026-10-30T15:56:55.818173+00:00",
+  "scenario_tiers": [
+    {
+      "equity_usdt": 20.0,
+      "independent": true,
+      "label": "equity_20_usdt"
+    },
+    {
+      "equity_usdt": 500.0,
+      "independent": true,
+      "label": "equity_500_usdt"
+    }
+  ],
+  "sources": {
+    "instruments": "./data/market/instruments/instruments.parquet",
+    "runs": [
+      {
+        "config_found": true,
+        "key": "champion_dev",
+        "leverage": 10.0,
+        "risk_fraction": 0.05,
+        "run_dir": "./runs/20261030T115653Z_range_v1_dacaa5eb69700faa",
+        "slippage_bps_per_side": 2.0,
+        "trades": 103,
+        "two_leg_tp": true
+      },
+      {
+        "config_found": true,
+        "key": "oos",
+        "leverage": 10.0,
+        "risk_fraction": 0.05,
+        "run_dir": "./runs/20261030T121703Z_range_v1_b97c3de383c7aee4",
+        "slippage_bps_per_side": 2.0,
+        "trades": 55,
+        "two_leg_tp": true
+      }
+    ],
+    "v8_reference": "~/src/v8/v8-core/src/usdm_sim/capital_viability.rs",
+    "validation": "./reports/validation_20261030T115653Z/validation.json"
+  },
+  "stop_distance_sources": {
+    "risk_usdt_per_quantity": 77,
+    "stop_price": 81
+  },
+  "summary": {
+    "equity_20_usdt": {
+      "approved": 155,
+      "binding_constraint_counts": {
+        "notional": 143,
+        "step": 15
+      },
+      "binding_constraint_v8_counts": {
+        "MIN_NOTIONAL_LIMIT": 143,
+        "STEP_SIZE_DISCRETIZATION": 15
+      },
+      "candidates": 158,
+      "fee_reserve_unknown": 0,
+      "max_e_crit_usdt": 21.500000000000057,
+      "max_e_required_usdt": 22.653964000000055,
+      "reason_counts": {
+        "below_min_notional": 3,
+        "below_min_qty": 3,
+        "step_rounding": 3
+      },
+      "rejected": 3,
+      "unknown_field_counts": {}
+    },
+    "equity_500_usdt": {
+      "approved": 158,
+      "binding_constraint_counts": {
+        "notional": 143,
+        "step": 15
+      },
+      "binding_constraint_v8_counts": {
+        "MIN_NOTIONAL_LIMIT": 143,
+        "STEP_SIZE_DISCRETIZATION": 15
+      },
+      "candidates": 158,
+      "fee_reserve_unknown": 0,
+      "max_e_crit_usdt": 21.500000000000057,
+      "max_e_required_usdt": 91.80408484795194,
+      "reason_counts": {},
+      "rejected": 0,
+      "unknown_field_counts": {}
+    }
+  }
+}

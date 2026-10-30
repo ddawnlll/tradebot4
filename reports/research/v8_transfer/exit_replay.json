@@ -1,0 +1,420 @@
+{
+  "generated": "2026-10-30T16:15:36.283384+00:00",
+  "symbols": [
+    "BTCUSDT",
+    "ETHUSDT",
+    "SOLUSDT",
+    "DOGEUSDT",
+    "MASKUSDT",
+    "SUIUSDT",
+    "NEIROUSDT",
+    "1000PEPEUSDT",
+    "WIFUSDT",
+    "TIAUSDT",
+    "BNBUSDT",
+    "NEIROETHUSDT",
+    "1000SHIBUSDT",
+    "XRPUSDT",
+    "APEUSDT",
+    "WLDUSDT",
+    "ENAUSDT",
+    "POPCATUSDT",
+    "LINKUSDT",
+    "BCHUSDT"
+  ],
+  "folds": [
+    {
+      "start": "2024-11-01",
+      "end": "2025-03-31"
+    },
+    {
+      "start": "2025-04-01",
+      "end": "2025-08-31"
+    },
+    {
+      "start": "2025-09-01",
+      "end": "2026-01-31"
+    },
+    {
+      "start": "2026-02-01",
+      "end": "2026-06-30"
+    }
+  ],
+  "data_split": "development 2024-11-01..2026-06-30",
+  "holdout_opened": false,
+  "notes": "Each fold is a fresh independent account; fold net sums are not one portfolio.",
+  "scenario_20": {
+    "baseline": {
+      "trades": 253,
+      "net_pnl": -34.76852011355916,
+      "profit_factor": 0.6250666834627658,
+      "expectancy_r": -0.16972128021384564,
+      "ci90": [
+        -0.24792883555849712,
+        -0.09376772430809624
+      ],
+      "win_rate": 0.48221343873517786,
+      "positive_folds": 0,
+      "folds": [
+        "2024-11-01",
+        "2025-04-01",
+        "2025-09-01",
+        "2026-02-01"
+      ],
+      "fold_net": [
+        -5.8983,
+        -10.2295,
+        -9.2246,
+        -9.4161
+      ],
+      "fees": 10.814947999999998,
+      "funding": 0.0035134764408302037,
+      "max_dd_usdt": 38.54367601088015,
+      "enter_signals": 253,
+      "cancel_signals": 0,
+      "rejected_entries": 0,
+      "fill_rate": 1.0
+    },
+    "candidates": {
+      "static_2r": {
+        "trades": 133,
+        "net_pnl": -34.36421815415602,
+        "profit_factor": 0.6245514753336948,
+        "expectancy_r": -0.30171547539101695,
+        "ci90": [
+          -0.4791234933359475,
+          -0.11334033494719006
+        ],
+        "win_rate": 0.2781954887218045,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -4.9053,
+          -10.0231,
+          -9.9349,
+          -9.5009
+        ],
+        "fees": 5.812268140000001,
+        "funding": -0.026849814155923964,
+        "max_dd_usdt": 39.658817403276004,
+        "enter_signals": 133,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      },
+      "static_3r": {
+        "trades": 108,
+        "net_pnl": -35.52666628719338,
+        "profit_factor": 0.5370788923519387,
+        "expectancy_r": -0.38769814658491303,
+        "ci90": [
+          -0.6183641112290557,
+          -0.14017087667239514
+        ],
+        "win_rate": 0.19444444444444445,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -5.5467,
+          -10.0934,
+          -10.2456,
+          -9.641
+        ],
+        "fees": 4.5913828,
+        "funding": -0.005545587193348401,
+        "max_dd_usdt": 41.67137744448337,
+        "enter_signals": 108,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      }
+    },
+    "stress": {
+      "static_2r": {
+        "trades": 125,
+        "net_pnl": -37.44257943069271,
+        "profit_factor": 0.5793631375713935,
+        "expectancy_r": -0.3626968720486722,
+        "ci90": [
+          -0.5577016692076958,
+          -0.16377811010413518
+        ],
+        "win_rate": 0.28,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -7.5637,
+          -10.2862,
+          -10.0361,
+          -9.5566
+        ],
+        "fees": 7.877154070000001,
+        "funding": -0.043258900692760956,
+        "max_dd_usdt": 42.50413394973271,
+        "enter_signals": 125,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      },
+      "static_3r": {
+        "trades": 85,
+        "net_pnl": -35.47631530764812,
+        "profit_factor": 0.4663295131227987,
+        "expectancy_r": -0.5044375115769284,
+        "ci90": [
+          -0.7641513204887496,
+          -0.23206220922429321
+        ],
+        "win_rate": 0.17647058823529413,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -5.5857,
+          -10.1839,
+          -10.0361,
+          -9.6707
+        ],
+        "fees": 5.41491114,
+        "funding": -0.015530907648111979,
+        "max_dd_usdt": 41.37120480875612,
+        "enter_signals": 85,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      }
+    },
+    "random": {
+      "random_actual": {
+        "trades": 198,
+        "net_pnl": -29.70098304432112,
+        "profit_factor": 0.7836065602410273,
+        "expectancy_r": -0.14820897451050766,
+        "ci90": [
+          -0.30602078133910227,
+          0.013944053709214383
+        ],
+        "win_rate": 0.3484848484848485,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -5.5085,
+          -9.3819,
+          -6.7911,
+          -8.0196
+        ],
+        "fees": 13.6337678,
+        "funding": -0.07528641432133498,
+        "max_dd_usdt": 38.475720640284834,
+        "enter_signals": 198,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      },
+      "random_2r": {
+        "trades": 296,
+        "net_pnl": -6.035536177675947,
+        "profit_factor": 0.9787306169692083,
+        "expectancy_r": -0.001955997715548684,
+        "ci90": [
+          -0.13535515087650654,
+          0.13462030582673817
+        ],
+        "win_rate": 0.3885135135135135,
+        "positive_folds": 1,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -0.3798,
+          11.9483,
+          -8.7322,
+          -8.8718
+        ],
+        "fees": 26.271533090000002,
+        "funding": -0.06885298767614197,
+        "max_dd_usdt": 49.374724866946906,
+        "enter_signals": 296,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      },
+      "random_3r": {
+        "trades": 125,
+        "net_pnl": -27.205027242243546,
+        "profit_factor": 0.7326189642414548,
+        "expectancy_r": -0.22442847262826493,
+        "ci90": [
+          -0.4593662124208867,
+          0.021159946107640742
+        ],
+        "win_rate": 0.24,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -7.3916,
+          -9.1321,
+          -4.1971,
+          -6.4842
+        ],
+        "fees": 9.560962360000001,
+        "funding": 0.03221478775642799,
+        "max_dd_usdt": 29.976623514093543,
+        "enter_signals": 125,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      }
+    }
+  },
+  "scenario_500": {
+    "baseline": {
+      "trades": 265,
+      "net_pnl": -840.0126743009884,
+      "profit_factor": 0.6477740673058913,
+      "expectancy_r": -0.1527327479345678,
+      "ci90": [
+        -0.22914132973421628,
+        -0.07791706511009934
+      ],
+      "win_rate": 0.49056603773584906,
+      "positive_folds": 0,
+      "folds": [
+        "2024-11-01",
+        "2025-04-01",
+        "2025-09-01",
+        "2026-02-01"
+      ],
+      "fold_net": [
+        -142.0225,
+        -255.5371,
+        -234.8218,
+        -207.6312
+      ],
+      "fees": 280.57619917000005,
+      "funding": 0.36329716901183545,
+      "max_dd_usdt": 954.2483555080735,
+      "enter_signals": 265,
+      "cancel_signals": 0,
+      "rejected_entries": 0,
+      "fill_rate": 1.0
+    },
+    "candidates": {
+      "static_2r": {
+        "trades": 155,
+        "net_pnl": -851.0662429428979,
+        "profit_factor": 0.671978485460734,
+        "expectancy_r": -0.2504593785189699,
+        "ci90": [
+          -0.42153079084624395,
+          -0.07145183288996648
+        ],
+        "win_rate": 0.2967741935483871,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -110.2778,
+          -251.5144,
+          -251.4721,
+          -237.802
+        ],
+        "fees": 169.33352249,
+        "funding": -0.3849685628964051,
+        "max_dd_usdt": 985.6978541023377,
+        "enter_signals": 155,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      },
+      "static_3r": {
+        "trades": 110,
+        "net_pnl": -887.4967003446325,
+        "profit_factor": 0.5537964594220435,
+        "expectancy_r": -0.37635514872427656,
+        "ci90": [
+          -0.6060251306626587,
+          -0.12509072292516432
+        ],
+        "win_rate": 0.2,
+        "positive_folds": 0,
+        "folds": [
+          "2024-11-01",
+          "2025-04-01",
+          "2025-09-01",
+          "2026-02-01"
+        ],
+        "fold_net": [
+          -136.7888,
+          -252.3509,
+          -259.7607,
+          -238.5963
+        ],
+        "fees": 119.5821479,
+        "funding": -0.19528813463122688,
+        "max_dd_usdt": 1044.7171366801588,
+        "enter_signals": 110,
+        "cancel_signals": 0,
+        "rejected_entries": 0,
+        "fill_rate": 1.0
+      }
+    }
+  },
+  "gates": {
+    "static_2r": {
+      "trades_ge_100": true,
+      "pf_ge_1_10": false,
+      "ci90_above_baseline": false,
+      "beats_random_same_exit": false,
+      "pf_stress_ge_1_00": false,
+      "plateau": false,
+      "verdict": false
+    },
+    "static_3r": {
+      "trades_ge_100": true,
+      "pf_ge_1_10": false,
+      "ci90_above_baseline": false,
+      "beats_random_same_exit": false,
+      "pf_stress_ge_1_00": false,
+      "plateau": false,
+      "verdict": false
+    }
+  },
+  "best_20": "static_2r"
+}

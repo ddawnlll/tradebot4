@@ -1,0 +1,210 @@
+{
+  "old": {
+    "dev": {
+      "name": "old model / dev-A",
+      "trades": 240,
+      "fees": 10.22280247,
+      "funding": -0.10037735976790096,
+      "slippage": 0.008022910000001283,
+      "net_pnl": -7.537509399767889,
+      "return_pct": -37.789153750000004,
+      "profit_factor": 0.9020083320526407,
+      "expectancy_r": -0.02623378042545451,
+      "win_rate": 0.5625,
+      "max_drawdown_pct": 50.24763747630365,
+      "avg_holding_hours": 1.847986111111111,
+      "equity_residual_usdt": -0.020321350232109125,
+      "gross_pnl": 2.7856704300000112
+    },
+    "oos": {
+      "name": "old model / dev-B",
+      "trades": 82,
+      "fees": 3.5011587500000005,
+      "funding": 0.0985833316564248,
+      "slippage": 0.0017286499999991049,
+      "net_pnl": -9.811277668343559,
+      "return_pct": -49.016929749999996,
+      "profit_factor": 0.621094417548036,
+      "expectancy_r": -0.1505511579348657,
+      "win_rate": 0.4634146341463415,
+      "max_drawdown_pct": 50.510780353983165,
+      "avg_holding_hours": 1.7308943089430888,
+      "equity_residual_usdt": 0.007891718343556064,
+      "gross_pnl": -6.408702249999983
+    }
+  },
+  "new": {
+    "dev": {
+      "name": "new model / dev-A",
+      "trades": 103,
+      "fees": 4.25199763,
+      "funding": -0.07644381736167101,
+      "slippage": 3.301678367137986,
+      "net_pnl": -7.853609737361647,
+      "return_pct": -39.346176099999994,
+      "profit_factor": 0.7674448494797801,
+      "expectancy_r": -0.0837806308925456,
+      "win_rate": 0.5631067961165048,
+      "max_drawdown_pct": 50.44793733562638,
+      "avg_holding_hours": 1.8118122977346274,
+      "equity_residual_usdt": -0.01562548263835417,
+      "c_trades": 103,
+      "c_gross_pnl": -3.5251682899999737,
+      "c_fees": 4.25199763,
+      "c_funding": -0.07644381736167101,
+      "c_slippage_usdt": 3.301678367137986,
+      "c_gross_before_slippage": -0.22348992286198754,
+      "c_net_pnl": -7.853609737361646,
+      "c_net_before_cost": -4.551931370223659,
+      "c_residual": -1.7763568394002505e-15,
+      "gross_pnl": -3.5251682899999737
+    },
+    "oos": {
+      "name": "new model / dev-B",
+      "trades": 55,
+      "fees": 2.2847213500000008,
+      "funding": 0.01735321234448,
+      "slippage": 2.4216995728799913,
+      "net_pnl": -9.823014387655464,
+      "return_pct": -49.077847,
+      "profit_factor": 0.502451040023147,
+      "expectancy_r": -0.22823889301143513,
+      "win_rate": 0.43636363636363634,
+      "max_drawdown_pct": 50.524746052082456,
+      "avg_holding_hours": 1.8469696969696963,
+      "equity_residual_usdt": 0.007444987655462754,
+      "c_trades": 55,
+      "c_gross_pnl": -7.555646249999944,
+      "c_fees": 2.2847213500000008,
+      "c_funding": 0.01735321234448,
+      "c_slippage_usdt": 2.4216995728799913,
+      "c_gross_before_slippage": -5.133946677119953,
+      "c_net_pnl": -9.823014387655462,
+      "c_net_before_cost": -7.401314814775474,
+      "c_residual": 1.7763568394002505e-15,
+      "gross_pnl": -7.555646249999944
+    }
+  },
+  "new_costs": {
+    "dev": {
+      "trades": 103,
+      "gross_pnl": -3.5251682899999737,
+      "fees": 4.25199763,
+      "funding": -0.07644381736167101,
+      "slippage_usdt": 3.301678367137986,
+      "gross_before_slippage": -0.22348992286198754,
+      "net_pnl": -7.853609737361646,
+      "net_before_cost": -4.551931370223659,
+      "residual": -1.7763568394002505e-15,
+      "by_kind": [
+        {
+          "kind": "ENTRY",
+          "fills": 103,
+          "notional": 4821.501966999999,
+          "adverse_usdt": 1.0446590099999982,
+          "avg_bps": 2.1666671861797426
+        },
+        {
+          "kind": "TP1",
+          "fills": 58,
+          "notional": 1337.4238994,
+          "adverse_usdt": 8.677433771531184e-15,
+          "avg_bps": 6.48817011227636e-14
+        },
+        {
+          "kind": "TP2",
+          "fills": 23,
+          "notional": 548.9613358,
+          "adverse_usdt": -2.3032790952282056e-14,
+          "avg_bps": -4.1957036771481225e-13
+        },
+        {
+          "kind": "STOP",
+          "fills": 36,
+          "notional": 919.4145979173383,
+          "adverse_usdt": 1.8249076371380164,
+          "avg_bps": 19.8485823617746
+        },
+        {
+          "kind": "EXIT",
+          "fills": 43,
+          "notional": 2009.1967154000001,
+          "adverse_usdt": 0.4321117199999862,
+          "avg_bps": 2.150669054393509
+        }
+      ]
+    },
+    "oos": {
+      "trades": 55,
+      "gross_pnl": -7.555646249999944,
+      "fees": 2.2847213500000008,
+      "funding": 0.01735321234448,
+      "slippage_usdt": 2.4216995728799913,
+      "gross_before_slippage": -5.133946677119953,
+      "net_pnl": -9.823014387655462,
+      "net_before_cost": -7.401314814775474,
+      "residual": 1.7763568394002505e-15,
+      "by_kind": [
+        {
+          "kind": "ENTRY",
+          "fills": 55,
+          "notional": 2569.0533499000003,
+          "adverse_usdt": 0.9461222200000201,
+          "avg_bps": 3.682765949710027
+        },
+        {
+          "kind": "TP1",
+          "fills": 24,
+          "notional": 545.7395764000003,
+          "adverse_usdt": 1.10772502281975e-14,
+          "avg_bps": 2.0297685392855625e-13
+        },
+        {
+          "kind": "STOP",
+          "fills": 14,
+          "notional": 513.94264530288,
+          "adverse_usdt": 1.0238921428799577,
+          "avg_bps": 19.922303631304054
+        },
+        {
+          "kind": "EXIT",
+          "fills": 24,
+          "notional": 1110.6411573000003,
+          "adverse_usdt": 0.45168520999999406,
+          "avg_bps": 4.066887014146436
+        },
+        {
+          "kind": "TP2",
+          "fills": 17,
+          "notional": 394.77799350000004,
+          "adverse_usdt": 8.934519790670947e-15,
+          "avg_bps": 2.263175743779382e-13
+        }
+      ]
+    }
+  },
+  "go_no_go": {
+    "verdict": "NO_GO",
+    "criteria": {
+      "oos_trades_ge_100": false,
+      "oos_profit_factor_gt_1_2": false,
+      "oos_positive_expectancy": false,
+      "oos_max_dd_le_30pct": false,
+      "walk_forward_majority_positive": false,
+      "sensitivity_majority_positive": false,
+      "beats_random_entry": true,
+      "beats_trend_pullback": false,
+      "positive_ci_lower_bound": false
+    },
+    "failed": [
+      "oos_trades_ge_100",
+      "oos_profit_factor_gt_1_2",
+      "oos_positive_expectancy",
+      "oos_max_dd_le_30pct",
+      "walk_forward_majority_positive",
+      "sensitivity_majority_positive",
+      "beats_trend_pullback",
+      "positive_ci_lower_bound"
+    ]
+  }
+}
