@@ -165,3 +165,17 @@ def test_breakeven_stop_move_is_skipped_when_price_gaps_through_it() -> None:
     stops = [o for o in bridge.out.orders if o["kind"] == "STOP"]
     assert stops and all(o["price"] == 99.0 for o in stops)
     bt.dispose()
+
+
+def test_adverse_tick_slippage_changes_stop_trade_pnl() -> None:
+    """Real matching-engine fills with slippage must reduce stopped-trade PnL."""
+    prices = flat_then_move(100.0, [99.8, 99.5, 99.2, 98.9, 98.5], flat_bars=20)
+    outcomes = []
+    for probability in (0.0, 1.0):
+        spec, engine = _engine(Side.LONG, stop=99.0, tps=(101.0, 102.0))
+        bt, bridge = run_synthetic(engine, spec, prices, start=START, prob_slippage=probability)
+        assert not bridge.out.errors
+        assert len(engine.closed_trades) == 1
+        outcomes.append(engine.closed_trades[0].net_pnl)
+        bt.dispose()
+    assert outcomes[1] < outcomes[0]

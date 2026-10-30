@@ -97,6 +97,7 @@ class RejectReason(StrEnum):
     STALE_DATA = "STALE_DATA"
     MISSING_CONTEXT = "MISSING_CONTEXT"
     COOLDOWN = "COOLDOWN"
+    ENTRY_TIMEOUT = "ENTRY_TIMEOUT"
 
 
 @dataclass(frozen=True, slots=True)
@@ -344,7 +345,7 @@ class OrderIntent:
     signal_id: str
     symbol: str
     side: Side
-    action: Literal["ENTRY", "EXIT", "PROTECT"]
+    action: Literal["ENTRY", "EXIT", "PROTECT", "CANCEL_ENTRY"]
     entry_type: EntryType
     entry_price: float
     stop_price: float

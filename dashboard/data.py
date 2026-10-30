@@ -217,7 +217,13 @@ def _read_parquet(path: Path, schema: Mapping[str, pl.DataType]) -> pl.DataFrame
     if not path.exists():
         return _empty(schema)
     try:
-        df = pl.read_parquet(path)
+        if path.is_dir():
+            files = sorted(path.rglob("*.parquet"))
+            if not files:
+                return _empty(schema)
+            df = pl.read_parquet(files)
+        else:
+            df = pl.read_parquet(path)
     except Exception:
         return _empty(schema)
     additions = [
@@ -275,7 +281,7 @@ def list_runs(root: str | Path | None = None, home: str | Path | None = None) ->
         metrics = _read_json(path / "metrics.json")
         artifact_names = {
             "has_trades": path.joinpath("trades.parquet").exists(),
-            "has_signals": path.joinpath("signals.parquet").exists(),
+            "has_signals": path.joinpath("signals.parquet").exists() or path.joinpath("signals").is_dir(),
             "has_fills": path.joinpath("fills.parquet").exists(),
             "has_equity": path.joinpath("equity.parquet").exists(),
         }
@@ -471,7 +477,11 @@ def normalize_orders(orders: pl.DataFrame) -> pl.DataFrame:
 
 
 def load_signals(run: str | Path) -> pl.DataFrame:
-    df = _read_parquet(Path(run) / "signals.parquet", SIGNAL_SCHEMA)
+    base = Path(run)
+    path = base / "signals.parquet"
+    if not path.exists() and (base / "signals").is_dir():
+        path = base / "signals"
+    df = _read_parquet(path, SIGNAL_SCHEMA)
     if df.is_empty():
         return df
     return df.sort("ts_ms")

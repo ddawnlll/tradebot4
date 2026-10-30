@@ -20,7 +20,7 @@ import polars as pl
 from nautilus_trader.backtest import BacktestEngine, BacktestEngineConfig
 from nautilus_trader.common import LogLevel
 from nautilus_trader.config import LoggerConfig, RiskEngineConfig
-from nautilus_trader.execution import DefaultFillModel, MakerTakerFeeModel, StaticLatencyModel
+from nautilus_trader.execution import MakerTakerFeeModel, StaticLatencyModel
 from nautilus_trader.model import (
     AccountType,
     Bar,
@@ -33,11 +33,14 @@ from nautilus_trader.model import (
 )
 
 from bot.backtest.bridge import BacktestBridge, BridgeConfig
-from bot.backtest.funding import funding_for_trades, load_funding
+from bot.backtest.export import write_dataset
+from bot.backtest.fill_models import CostAwareFillModel, CostModel
+from bot.backtest.funding import funding_for_trades, load_funding, validate_funding_coverage
 from bot.backtest.instruments import make_instrument, nautilus_id
 from bot.core.engine import DecisionEngine, EngineConfig
 from bot.core.market.scanner import ScannerConfig
 from bot.core.market.scoring import RangeScoreConfig
+from bot.core.market.state import SymbolConfig
 from bot.core.models import InstrumentSpec, config_hash
 from bot.core.risk.policy import RiskPolicy, RiskPolicyConfig
 from bot.core.risk.sizing import SizingConfig
@@ -67,8 +70,13 @@ class BacktestConfig:
     leverage: float = 10.0
     maker_fee: float = 0.0002
     taker_fee: float = 0.0005
-    prob_fill_on_limit: float = 1.0
-    prob_slippage: float = 0.0
+    market_slippage_bps: float = 2.0
+    stop_slippage_bps: float = 5.0
+    limit_tick_buffer: int = 1
+    commission_multiplier: float = 1.0
+    slippage_multiplier: float = 1.0
+    prob_fill_on_limit: float = 0.9
+    prob_slippage: float = 1.0
     random_seed: int | None = 42
     latency_ms: int = 0
     max_positions: int = 1
@@ -79,10 +87,15 @@ class BacktestConfig:
     chunk_days: int = 15
     bar_interval_ms: int = 60_000
     adaptive_high_low: bool = False
+    entry_tf_ms: int = 900_000
+    context_tf_ms: int = 3_600_000
+    higher_tf_ms: int = 14_400_000
     venue: str = "BINANCE"
     use_funding: bool = True
+    require_funding_coverage: bool = True
     strict_errors: bool = True
     journal: bool = True
+    keep_journal_db: bool = False
     enrich: bool = True
     range_score: RangeScoreConfig = field(default_factory=RangeScoreConfig)
     scanner: ScannerConfig = field(default_factory=ScannerConfig)
@@ -98,6 +111,11 @@ class BacktestConfig:
             "leverage": self.leverage,
             "maker_fee": self.maker_fee,
             "taker_fee": self.taker_fee,
+            "market_slippage_bps": self.market_slippage_bps,
+            "stop_slippage_bps": self.stop_slippage_bps,
+            "limit_tick_buffer": self.limit_tick_buffer,
+            "commission_multiplier": self.commission_multiplier,
+            "slippage_multiplier": self.slippage_multiplier,
             "prob_fill_on_limit": self.prob_fill_on_limit,
             "prob_slippage": self.prob_slippage,
             "random_seed": self.random_seed,
@@ -109,6 +127,10 @@ class BacktestConfig:
             "kill_switch_drawdown_frac": self.kill_switch_drawdown_frac,
             "bar_interval_ms": self.bar_interval_ms,
             "adaptive_high_low": self.adaptive_high_low,
+            "keep_journal_db": self.keep_journal_db,
+            "entry_tf_ms": self.entry_tf_ms,
+            "context_tf_ms": self.context_tf_ms,
+            "higher_tf_ms": self.higher_tf_ms,
             "range_score": _asdict(self.range_score),
             "scanner": _asdict(self.scanner),
         }
@@ -126,6 +148,20 @@ class BacktestResult:
     metrics: dict
     elapsed_s: float
     errors: list[dict]
+
+
+def _cost_model(cfg: BacktestConfig) -> CostModel:
+    return CostModel(
+        maker_fee=cfg.maker_fee,
+        taker_fee=cfg.taker_fee,
+        market_slippage_bps=cfg.market_slippage_bps,
+        stop_slippage_bps=cfg.stop_slippage_bps,
+        limit_tick_buffer=cfg.limit_tick_buffer,
+        prob_fill_on_limit=cfg.prob_fill_on_limit,
+        random_seed=cfg.random_seed or 42,
+        commission_multiplier=cfg.commission_multiplier,
+        slippage_multiplier=cfg.slippage_multiplier,
+    )
 
 
 def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Path | None = None) -> BacktestResult:
@@ -148,6 +184,11 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         raise ValueError("no instrument specs")
 
     strategy = build_strategy(cfg.strategy, cfg.strategy_params)
+    symbol_cfg = SymbolConfig(
+        entry_tf_ms=cfg.entry_tf_ms,
+        context_tf_ms=cfg.context_tf_ms,
+        higher_tf_ms=cfg.higher_tf_ms,
+    )
     engine_cfg = EngineConfig(
         strategy_name=cfg.strategy,
         strategy_version=strategy.version,
@@ -156,6 +197,7 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         range_score=cfg.range_score,
         scanner=cfg.scanner,
         sizing=SizingConfig(risk_fraction=cfg.risk_fraction, max_leverage=cfg.leverage),
+        symbol=symbol_cfg,
     )
     risk = RiskPolicy(
         RiskPolicyConfig(
@@ -168,6 +210,7 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
     decision = DecisionEngine(strategy, specs, engine_cfg, risk)
 
     venue_name = cfg.venue
+    cost_model = _cost_model(cfg)
     usdt = Currency.from_str("USDT")
     bt_engine = BacktestEngine(
         BacktestEngineConfig(
@@ -186,12 +229,11 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         default_leverage=Decimal(str(cfg.leverage)),
         bar_execution=True,
         bar_adaptive_high_low_ordering=cfg.adaptive_high_low,
-        fee_model=MakerTakerFeeModel(maker_rate=Decimal(str(cfg.maker_fee)), taker_rate=Decimal(str(cfg.taker_fee))),
-        fill_model=DefaultFillModel(
-            prob_fill_on_limit=cfg.prob_fill_on_limit,
-            prob_slippage=cfg.prob_slippage,
-            random_seed=cfg.random_seed,
+        fee_model=MakerTakerFeeModel(
+            maker_rate=Decimal(str(cost_model.effective_maker_fee)),
+            taker_rate=Decimal(str(cost_model.effective_taker_fee)),
         ),
+        fill_model=CostAwareFillModel(cost_model),
         latency_model=StaticLatencyModel(base_latency_nanos=cfg.latency_ms * 1_000_000) if cfg.latency_ms else None,
         liquidation_enabled=True,
         use_reduce_only=True,
@@ -215,6 +257,8 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
     bt_engine.add_strategy(bridge)
 
     funding_path = paths.funding / "funding.parquet"
+    if cfg.use_funding and cfg.require_funding_coverage:
+        validate_funding_coverage(paths, list(specs), cfg.start_ms, cfg.end_ms)
     chunks = calendar_chunks(cfg.start_ms, cfg.end_ms, cfg.chunk_days)
     total_bars = 0
     for ci, (c_start, c_end) in enumerate(chunks, start=1):
@@ -236,6 +280,7 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
 
     last_prices = {s: st.last_1m.close for s, st in decision.states.items() if st.last_1m is not None}
     decision.finalize(cfg.end_ms, last_prices)
+    bridge.capture_final_equity(cfg.end_ms)
 
     fills_pre = _frame(bridge.out.fills)
     funding_df = pl.read_parquet(paths.funding / "funding.parquet") if (paths.funding / "funding.parquet").exists() else pl.DataFrame()
@@ -261,10 +306,20 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
     signals = _frame(bridge.out.signals)
 
     _dump(bt_engine, run_dir, venue_name)
-    for name, df in (("trades", trades), ("fills", fills), ("orders", orders), ("equity", equity), ("signals", signals)):
-        if df.height:
-            df = _flatten_structs(df)
-            df.write_parquet(run_dir / f"{name}.parquet", compression="zstd")
+    signals = _flatten_structs(signals)
+    for name, df, ts_col, partitions in (
+        ("trades", trades, "exit_ts_ms", ("symbol", "year", "month")),
+        ("fills", fills, "ts_ms", ("symbol", "year", "month")),
+        ("orders", orders, "ts_ms", ("symbol", "year", "month")),
+        ("equity", equity, "ts_ms", ("year", "month")),
+    ):
+        if not df.height:
+            continue
+        df = _flatten_structs(df)
+        df.write_parquet(run_dir / f"{name}.parquet", compression="zstd")
+        write_dataset(df, run_dir, f"{name}_by_symbol" if name != "equity" else "equity_by_month", ts_col, partitions)
+    if signals.height:
+        write_dataset(signals, run_dir, "signals", "ts_ms", ("symbol", "year", "month"))
 
     from bot.journal.tagging import tag_trades
 
@@ -311,6 +366,12 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
 
     if cfg.journal:
         _write_journal(run_dir, run_id, meta, signals, trades, fills, orders, equity, funding_events, tags)
+        if not cfg.keep_journal_db:
+            # The SQLite file is a transient write buffer; the parquet files
+            # and partitions are the durable journal. Keeping a 700 MB SQLite
+            # per campaign run is the single largest output in the repo.
+            for suffix in ("", "-wal", "-shm"):
+                (run_dir / f"journal.sqlite{suffix}").unlink(missing_ok=True)
     if cfg.enrich:
         from bot.journal.enrich import missed_opportunities, post_exit_drift
 
@@ -606,10 +667,11 @@ def run_backtest_node(
         default_leverage=Decimal(str(cfg.leverage)),
         bar_execution=True,
         bar_adaptive_high_low_ordering=cfg.adaptive_high_low,
-        fee_model=MakerTakerFeeModel(maker_rate=Decimal(str(cfg.maker_fee)), taker_rate=Decimal(str(cfg.taker_fee))),
-        fill_model=DefaultFillModel(
-            prob_fill_on_limit=cfg.prob_fill_on_limit, prob_slippage=cfg.prob_slippage, random_seed=cfg.random_seed
+        fee_model=MakerTakerFeeModel(
+            maker_rate=Decimal(str(_cost_model(cfg).effective_maker_fee)),
+            taker_rate=Decimal(str(_cost_model(cfg).effective_taker_fee)),
         ),
+        fill_model=CostAwareFillModel(_cost_model(cfg)),
         use_reduce_only=True,
         support_contingent_orders=False,
     )
@@ -654,6 +716,7 @@ def run_backtest_node(
         node.dispose()
     last_prices = {s: st.last_1m.close for s, st in decision.states.items() if st.last_1m is not None}
     decision.finalize(cfg.end_ms, last_prices)
+    bridge.capture_final_equity(cfg.end_ms)
     from bot.backtest.report import compute_metrics
 
     trades = _frame([_trade_row(t) for t in decision.closed_trades])

@@ -21,7 +21,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from bot.core.models import ExitReason, RegimeState, RejectReason, Side
+from bot.core.models import EntryType, ExitReason, RegimeState, RejectReason, Side
 from bot.core.strategies.base import (
     EntryContext,
     EntryDecision,
@@ -51,6 +51,9 @@ class RangeV1Config:
     breakout_exit_vol_mult: float = 2.5
     enable_breakout_exit: bool = True
     time_stop_bars: int = 32  # 8 hours on 15m decisions, measured in 15m bars
+    passive_entry_bars: int = 4
+    passive_entry_distance_atr: float = 1.0
+    passive_entry_price: str = "edge"  # edge | centre
     weights: dict[str, float] = field(default_factory=dict)
 
 
@@ -222,3 +225,86 @@ class RangeV2PassiveStrategy(RangeV1Strategy):
 
     def __init__(self, config: RangeV1Config | None = None) -> None:
         super().__init__(config)
+
+    def evaluate_entry(self, ctx: EntryContext) -> EntryDecision:
+        c = self.config
+        regime = ctx.regime
+        if c.require_range_regime and regime.state is not RegimeState.RANGE:
+            return EntryDecision(None, RejectReason.REGIME, regime.state.value)
+        if regime.confidence < c.min_regime_confidence:
+            return EntryDecision(None, RejectReason.REGIME, "low regime confidence")
+        if regime.breakout_risk > c.max_breakout_risk:
+            return EntryDecision(None, RejectReason.BREAKOUT_RISK, f"{regime.breakout_risk:.2f}")
+        if regime.squeeze_risk > c.max_squeeze_risk:
+            return EntryDecision(None, RejectReason.SQUEEZE_RISK, f"{regime.squeeze_risk:.2f}")
+        if len(ctx.state.bars_entry) < c.entry_tf_bars_min:
+            return EntryDecision(None, RejectReason.MISSING_CONTEXT, "warmup")
+
+        setup = ctx.setup
+        if setup is None:
+            return EntryDecision(None, RejectReason.NO_RANGE, "no validated range")
+        bar = ctx.bar
+        atr = setup.atr
+        if atr <= 0:
+            return EntryDecision(None, RejectReason.MISSING_CONTEXT, "no atr")
+        if bar.range > c.max_bar_range_atr * atr or abs(bar.body) > c.max_body_atr * atr:
+            return EntryDecision(None, RejectReason.MOMENTUM, "impulse bar")
+        median_qv = ctx.state.median_entry_quote_volume
+        if median_qv > 0 and bar.quote_volume > c.vol_spike_mult * median_qv:
+            return EntryDecision(None, RejectReason.VOLUME_SPIKE, "volume spike")
+
+        support = setup.support
+        resistance = setup.resistance
+        distance = c.passive_entry_distance_atr * atr
+        long_ok = support.upper < bar.close <= support.upper + distance
+        short_ok = resistance.lower - distance <= bar.close < resistance.lower
+        if long_ok and short_ok:
+            long_ok = bar.close <= setup.mid
+            short_ok = not long_ok
+        if long_ok:
+            proposal = self._passive_proposal(ctx, setup, Side.LONG)
+            if isinstance(proposal, EntryDecision):
+                return proposal
+            return EntryDecision(proposal)
+        if short_ok:
+            proposal = self._passive_proposal(ctx, setup, Side.SHORT)
+            if isinstance(proposal, EntryDecision):
+                return proposal
+            return EntryDecision(proposal)
+        return EntryDecision(None, RejectReason.NOT_AT_EDGE, "price not near zone")
+
+    def _passive_proposal(self, ctx: EntryContext, setup, side: Side) -> EntryProposal | EntryDecision:
+        support = setup.support
+        resistance = setup.resistance
+        buffer = self._buffer(ctx, setup)
+        use_edge = self.config.passive_entry_price != "centre"
+        if side is Side.LONG:
+            entry = support.upper if use_edge else support.center
+            stop = support.lower - buffer
+            tp1 = setup.mid
+            tp2 = resistance.lower - self.config.tp2_offset_frac * setup.width
+            valid = stop < entry < tp1 < tp2
+        else:
+            entry = resistance.lower if use_edge else resistance.center
+            stop = resistance.upper + buffer
+            tp1 = setup.mid
+            tp2 = support.upper + self.config.tp2_offset_frac * setup.width
+            valid = tp2 < tp1 < entry < stop
+        if not valid:
+            return EntryDecision(None, RejectReason.NO_RANGE, "invalid passive ladder")
+        stop_pct = abs(entry - stop) / entry
+        if stop_pct < self.config.min_stop_pct:
+            return EntryDecision(None, RejectReason.HIGH_COST, "stop too tight")
+        if stop_pct > self.config.max_stop_pct:
+            return EntryDecision(None, RejectReason.NARROW_RANGE, "stop too wide")
+        return EntryProposal(
+            side=side,
+            entry_price=entry,
+            stop_price=stop,
+            take_profits=(tp1, tp2),
+            reason="passive_range_edge",
+            entry_type=EntryType.LIMIT_POST_ONLY,
+            post_only=True,
+            hold_bars=self.config.passive_entry_bars,
+            features={"setup": setup, "stop_pct": stop_pct, "passive": True},
+        )

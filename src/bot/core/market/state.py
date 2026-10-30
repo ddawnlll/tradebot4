@@ -112,13 +112,15 @@ class SymbolState:
             self.zones.update(agg.bar)
             update.entry_bar = agg.bar
             update.entry_complete = agg.complete
-        elif tf == self.config.context_tf_ms:
+        # Independent checks: a timeframe may serve two roles (for example
+        # 1h entry plus 1h context), and both must be updated.
+        if tf == self.config.context_tf_ms:
             self.last_context = agg.bar
             self.bars_context.append(agg.bar)
             self.regime_context.update(agg.bar)
             update.context_bar = agg.bar
             update.context_complete = agg.complete
-        elif tf == self.config.higher_tf_ms:
+        if tf == self.config.higher_tf_ms:
             self.last_higher = agg.bar
             self.bars_higher.append(agg.bar)
             self.regime_higher.update(agg.bar)

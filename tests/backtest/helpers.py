@@ -93,6 +93,7 @@ def run_synthetic(
     starting_balance: float = 1000.0,
     adaptive: bool = False,
     bar_volume: float = 1_000_000.0,
+    prob_slippage: float = 0.0,
 ) -> tuple[BacktestEngine, BacktestBridge]:
     from nautilus_trader.model import Bar, BarType
 
@@ -120,7 +121,7 @@ def run_synthetic(
         bar_execution=True,
         bar_adaptive_high_low_ordering=adaptive,
         fee_model=MakerTakerFeeModel(maker_rate=Decimal("0.0002"), taker_rate=Decimal("0.0005")),
-        fill_model=DefaultFillModel(prob_fill_on_limit=1.0, prob_slippage=0.0, random_seed=1),
+        fill_model=DefaultFillModel(prob_fill_on_limit=1.0, prob_slippage=prob_slippage, random_seed=1),
         use_reduce_only=True,
         support_contingent_orders=False,
     )

@@ -277,7 +277,12 @@ def journal_enrich(run: str | None = typer.Option(None, help="run id or path")) 
     tags.write_parquet(run_dir / "tags.parquet")
     drift = post_exit_drift(trades, paths)
     drift.write_parquet(run_dir / "post_exit_drift.parquet")
-    signals = __import__("polars").read_parquet(run_dir / "signals.parquet")
+    signals_path = run_dir / "signals.parquet"
+    if not signals_path.exists() and (run_dir / "signals").is_dir():
+        signals_path = run_dir / "signals"
+    import polars as pl
+
+    signals = pl.read_parquet(sorted(signals_path.rglob("*.parquet"))) if signals_path.is_dir() else pl.read_parquet(signals_path)
     missed = missed_opportunities(signals, paths)
     if missed.height:
         missed.write_parquet(run_dir / "missed.parquet")

@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.2.0 - 2026-10-30
+
+Costed baseline and research round 1. Verdict: **NO_GO**; the holdout was not
+opened.
+
+### Added
+
+- Explicit cost model (ADR 0007): market `max(2 bps, 1 tick)` adverse, stop
+  5 bps adverse plus the bar gap, limit fills only after one tick through the
+  price with 90% touch probability, commission/slippage stress multipliers.
+- Funding coverage validation: missing or gappy funding aborts a run instead
+  of silently assuming zero.
+- Partitioned signal and run datasets by symbol/month; the transient SQLite
+  journal is deleted after the parquet export by default.
+- Frozen data split and gates (ADR 0006), holdout opening policy (ADR 0008),
+  append-only experiment ledger, preregistered hypotheses H1-H3.
+- Passive post-only entry at the zone edge, entry timeout/cancel handling, 1h
+  signal configuration, dual-timeframe state routing.
+- Baseline report, stress run, hypothesis walk-forward runner, gate
+  re-evaluation and H1 adverse-selection analysis.
+
+### Results
+
+- Costed baseline, dev-A: 103 trades, gross -3.53, slippage 3.30, fees 4.25,
+  net -7.85, PF 0.767; the 50% kill switch triggers on 2025-01-19. The old
+  optimistic model showed 240 trades and +2.79 gross before fees; the old
+  edge was a later, luckier slice of a path the realistic model did not
+  survive.
+- Four-fold baseline: 253 trades, net -34.77, PF 0.625, expectancy -0.1697R,
+  0/4 positive folds; the random benchmark is better (-0.1482R).
+- H1 best (h1a): 678 trades, PF 0.919, -0.0296R, stress PF 0.860.
+- H2: ratio 4.0 gives 27 trades; 5.0+ gives zero.
+- H3 best (h3b): 89 trades, PF 0.884, -0.0391R, stress PF 0.795.
+- No configuration passes the frozen gates; the holdout remains sealed.
+
 ## 0.1.0 - 2026-10-29
 
 Research system, first complete pass through Milestone 6.
