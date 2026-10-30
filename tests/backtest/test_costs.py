@@ -12,6 +12,7 @@ from bot.backtest.fill_models import CostAwareFillModel, CostModel
 from bot.backtest.instruments import make_instrument
 from bot.backtest.runner import BacktestConfig, run_backtest
 from bot.core.models import InstrumentSpec
+from tests.backtest.helpers import require_market_data
 
 SPEC = InstrumentSpec(
     symbol="WIFUSDT",
@@ -81,6 +82,7 @@ def test_limit_requires_one_tick_through() -> None:
 
 
 def test_cost_model_changes_fills_fees_and_reconciles() -> None:
+    require_market_data()
     start = int(datetime(2024, 11, 1, tzinfo=UTC).timestamp() * 1000)
     end = int(datetime(2024, 12, 1, tzinfo=UTC).timestamp() * 1000)
     result = run_backtest(
@@ -107,6 +109,7 @@ def test_cost_model_changes_fills_fees_and_reconciles() -> None:
 
 
 def test_journal_database_is_transient() -> None:
+    require_market_data()
     start = int(datetime(2024, 11, 1, tzinfo=UTC).timestamp() * 1000)
     end = int(datetime(2024, 12, 1, tzinfo=UTC).timestamp() * 1000)
     result = run_backtest(
@@ -129,6 +132,7 @@ def test_funding_reconciliation_within_documented_tolerance() -> None:
     The residual must stay inside the documented tolerance
     ``max(0.01 USDT, 0.5% of starting balance)``.
     """
+    require_market_data()
     start = int(datetime(2024, 11, 1, tzinfo=UTC).timestamp() * 1000)
     end = int(datetime(2024, 12, 1, tzinfo=UTC).timestamp() * 1000)
     result = run_backtest(

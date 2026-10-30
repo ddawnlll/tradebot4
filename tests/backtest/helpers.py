@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from decimal import Decimal
 
+import pytest
 from nautilus_trader.backtest import BacktestEngine, BacktestEngineConfig
 from nautilus_trader.common import LogLevel
 from nautilus_trader.config import LoggerConfig, RiskEngineConfig
@@ -26,6 +27,18 @@ from bot.core.strategies.base import (
 
 VENUE = "BINANCE"
 MS = 1_000_000
+
+
+def require_market_data(symbol: str = "WIFUSDT") -> None:
+    """Skip only when the external 1m market data is not installed.
+
+    Market data is intentionally not tracked. This is an environment
+    prerequisite, not a hidden test failure; run `bot data sync` to install it.
+    """
+    from bot.data.storage import Paths
+
+    if not (Paths().bars_1m / f"symbol={symbol}").exists():
+        pytest.skip(f"market data for {symbol} is not installed; run `bot data sync --symbols {symbol} ...`")
 
 
 def synthetic_spec(symbol: str = "TESTUSDT", tick: float = 0.01, step: float = 0.001, min_notional: float = 5.0) -> InstrumentSpec:

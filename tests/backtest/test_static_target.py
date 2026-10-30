@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 
 from bot.backtest.runner import BacktestConfig, run_backtest
+from tests.backtest.helpers import require_market_data
 
 
 def _ms(y: int, m: int) -> int:
@@ -10,6 +11,7 @@ def _ms(y: int, m: int) -> int:
 
 
 def test_static_target_changes_exit_geometry_without_changing_entries():
+    require_market_data()
     base = dict(symbols=["WIFUSDT"], start_ms=_ms(2024, 11), end_ms=_ms(2024, 12), use_funding=False,
                 journal=False, enrich=False)
     plain = run_backtest(BacktestConfig(**base))

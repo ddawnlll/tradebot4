@@ -15,6 +15,7 @@ from bot.backtest.runner import BacktestConfig, run_backtest, run_backtest_node
 from bot.data.instruments import load_instruments
 from bot.data.storage import Paths
 from bot.data.to_nautilus import export_symbol
+from tests.backtest.helpers import require_market_data
 
 pytestmark = [pytest.mark.nautilus, pytest.mark.slow]
 
@@ -23,6 +24,7 @@ END = int(datetime(2024, 12, 1, tzinfo=UTC).timestamp() * 1000)
 
 
 def test_node_matches_engine(tmp_path) -> None:
+    require_market_data()
     paths = Paths()
     specs = load_instruments(paths)
     if "WIFUSDT" not in specs:
