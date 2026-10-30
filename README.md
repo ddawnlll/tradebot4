@@ -26,7 +26,7 @@ uv run ruff check src tests dashboard scripts
 | Check | Result |
 |---|---|
 | `pytest` (market data installed) | **154 passed** in 6.7 s |
-| `pytest` (fresh clone, no data) | **151 passed, 3 skipped** with an explicit `market data ... not installed` reason |
+| `pytest` (fresh clone, no data) | **149 passed, 5 skipped** with an explicit `market data ... not installed` reason |
 | `ruff check src tests dashboard scripts` | **All checks passed** |
 | Python | 3.13.9 (uv virtual environment) |
 | NautilusTrader | 2.0.0rc8 |
@@ -40,8 +40,9 @@ exports, audit identity/atomic history, passive limit entries, 1h entry
 configuration, observational MarketState features, capital viability, exit
 scanning and static-target exits.
 
-The data-dependent tests skip with an explicit reason when the 2.7 GB market
-data is absent; run `bot data sync` to install it and get the full 154-test run.
+The five data-dependent tests skip with an explicit reason when the 2.7 GB
+market data is absent; run `bot data sync` to install it and get the full
+154-test run.
 Live/testnet is intentionally absent.
 
 ## Research status
