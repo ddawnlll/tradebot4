@@ -42,6 +42,7 @@ class ValidationConfig:
     mc_paths: int = 10_000
     max_workers: int = 4
     out_dir: Path | None = None
+    write_audit: bool = True
 
 
 def _run_one(cfg: BacktestConfig) -> dict:
@@ -170,6 +171,13 @@ def run_validation(cfg: ValidationConfig, paths: Paths | None = None) -> dict:
         report["vault"] = {"skipped": "OOS failed core criteria; vault not opened"}
 
     report["go_no_go"] = go_no_go(report)
+    if cfg.write_audit:
+        try:
+            from bot.audit.why import write_audit_report
+
+            write_audit_report(report, source=out_dir.name)
+        except Exception as exc:  # the audit must never fail the validation
+            log.warning("audit report failed: %s", exc)
     (out_dir / "validation.json").write_text(json.dumps(report, indent=2, default=str))
     (out_dir / "validation.md").write_text(render_report(report))
     return report

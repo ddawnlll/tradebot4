@@ -3,7 +3,8 @@
 > hypotheses are **NO_GO**; the holdout 2026-07-01..2026-10-20 was not opened.
 > See `reports/research_round1/report.md` and
 > `reports/baseline_costed/baseline.md`. This document remains the Phase 1
-> record; its vault was not opened.
+> record; its vault was not opened. Every validation now regenerates
+> `docs/audits/why_no_edge.md` and appends to `kaizen/audit_history.parquet`.
 
 # Milestone 6 validation report - GO / NO_GO
 
