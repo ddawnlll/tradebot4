@@ -74,6 +74,42 @@ def _parallel(cfgs: list[BacktestConfig], max_workers: int) -> list[dict]:
     return out
 
 
+def _attach_audit(report: dict, out_dir: Path, enabled: bool = True) -> dict:
+    """Run the loss audit and record its status on the validation report.
+
+    The audit must never fail validation, but its failure must be visible in
+    ``report["audit"]`` rather than only in a log line.
+    """
+    if not enabled:
+        report["audit"] = {"ok": False, "skipped": True, "error": "audit disabled by config"}
+        return report["audit"]
+    champion = report.get("champion_dev", {})
+    try:
+        from bot.audit.why import write_audit_report
+
+        audit = write_audit_report(report, source=out_dir.name)
+        status = {
+            "ok": True,
+            "doc": audit.get("audit_doc"),
+            "history": audit.get("history_path"),
+            "history_rows": audit.get("history_rows"),
+            "run_id": champion.get("run_id"),
+            "research_context_attached": (audit.get("research_context") or {}).get("attached"),
+        }
+    except Exception as exc:  # the audit must never fail the validation
+        log.warning("audit report failed: %s", exc)
+        status = {"ok": False, "error": f"{type(exc).__name__}: {exc}"}
+    report["audit"] = status
+    return status
+
+
+def _finalize_report(report: dict, out_dir: Path, write_audit: bool = True) -> None:
+    """Attach the audit status before writing validation.json."""
+    _attach_audit(report, out_dir, enabled=write_audit)
+    (out_dir / "validation.json").write_text(json.dumps(report, indent=2, default=str))
+    (out_dir / "validation.md").write_text(render_report(report))
+
+
 def run_validation(cfg: ValidationConfig, paths: Paths | None = None) -> dict:
     paths = paths or Paths()
     out_dir = cfg.out_dir or (paths.reports / f"validation_{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}")
@@ -171,15 +207,7 @@ def run_validation(cfg: ValidationConfig, paths: Paths | None = None) -> dict:
         report["vault"] = {"skipped": "OOS failed core criteria; vault not opened"}
 
     report["go_no_go"] = go_no_go(report)
-    if cfg.write_audit:
-        try:
-            from bot.audit.why import write_audit_report
-
-            write_audit_report(report, source=out_dir.name)
-        except Exception as exc:  # the audit must never fail the validation
-            log.warning("audit report failed: %s", exc)
-    (out_dir / "validation.json").write_text(json.dumps(report, indent=2, default=str))
-    (out_dir / "validation.md").write_text(render_report(report))
+    _finalize_report(report, out_dir, write_audit=cfg.write_audit)
     return report
 
 
@@ -255,6 +283,8 @@ def render_report(report: dict) -> str:
     if mc:
         lines += ["## Monte Carlo (iid / block)", "", "```json", json.dumps(mc, indent=2), "```", ""]
     lines += ["## Go / No-Go", "", "```json", json.dumps(report["go_no_go"], indent=2), "```", ""]
+    if "audit" in report:
+        lines += ["## Loss audit", "", "```json", json.dumps(report["audit"], indent=2, default=str), "```", ""]
     if "vault" in report:
         lines += ["## Vault", "", "```json", json.dumps(report["vault"], indent=2, default=str)[:4000], "```", ""]
     return "\n".join(lines)

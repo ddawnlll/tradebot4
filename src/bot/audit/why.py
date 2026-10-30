@@ -7,17 +7,32 @@ months, and states the arithmetic levers. It does not propose a new strategy.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import os
+import time
+import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import polars as pl
 
+try:  # POSIX only; the fallback below keeps the writer usable elsewhere.
+    import fcntl
+except ImportError:  # pragma: no cover - exercised only on non-POSIX platforms
+    fcntl = None  # type: ignore[assignment]
+
 COLUMNS: dict[str, pl.DataType] = {
     "ts_utc": pl.Utf8,
     "source": pl.Utf8,
+    "validation_source": pl.Utf8,
     "run_id": pl.Utf8,
+    "config_hash": pl.Utf8,
+    "periods": pl.Utf8,
+    "identity_key": pl.Utf8,
     "strategy": pl.Utf8,
     "period_start": pl.Utf8,
     "period_end": pl.Utf8,
@@ -349,6 +364,18 @@ def render_markdown(audit: dict, history: pl.DataFrame | None = None, title: str
         f"{audit['mae_mfe'].get('mae_le_1r', 0)} trades had MAE <= -1R, {audit['mae_mfe'].get('mfe_ge_1r', 0)} had MFE >= +1R; "
         f"{audit['mae_mfe'].get('realized_le_1r', 0)} realized <= -1R and {audit['mae_mfe'].get('realized_le_0_5r', 0)} realized <= -0.5R.",
         "",
+    ]
+    context = audit.get("research_context")
+    if context:
+        if context.get("attached"):
+            md += ["## Research context", "",
+                   f"Hypothesis and benchmark context attached from `{context.get('summary')}` "
+                   "after its recorded run_id/period identity matched this validation.", ""]
+        else:
+            md += ["## Research context", "",
+                   f"Not attached: {context.get('reason')}. Hypothesis, random and baseline values are "
+                   "omitted rather than mixing results from another run, config or period.", ""]
+    md += [
         "## Root causes (ranked)",
         "",
         _table(causes, ["severity", "cause", "evidence"]),
@@ -372,16 +399,119 @@ def render_markdown(audit: dict, history: pl.DataFrame | None = None, title: str
     return "\n".join(md)
 
 
-def append_history(audit: dict, path: str | Path, source: str, verdict: str, notes: str = "") -> pl.DataFrame:
+def _stable_identity(run_id: str, period_start: str | None, period_end: str | None,
+                     config_hash: str | None) -> str:
+    raw = "|".join([run_id or "", period_start or "", period_end or "", config_hash or ""])
+    return hashlib.sha256(raw.encode()).hexdigest()[:32]
+
+
+def _align_history(df: pl.DataFrame) -> pl.DataFrame:
+    missing = [name for name in COLUMNS if name not in df.columns]
+    if missing:
+        df = df.with_columns([pl.lit(None, dtype=COLUMNS[name]).alias(name) for name in missing])
+    ordered = [name for name in COLUMNS if name in df.columns]
+    extras = [name for name in df.columns if name not in COLUMNS]
+    return df.select(ordered + extras)
+
+
+@contextmanager
+def _history_lock(path: Path) -> Iterator[None]:
+    """Serialise the read-modify-write cycle for one history file.
+
+    ``fcntl.flock`` is released automatically by the kernel if the process
+    dies. The directory fallback exists for platforms without ``flock``.
+    """
+    lock_path = path.with_name(path.name + ".lock")
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    fallback_dir = path.with_name(path.name + ".lockdir")
+    fallback_held = False
+    with open(lock_path, "a+") as handle:
+        try:
+            if fcntl is not None:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+            else:  # pragma: no cover - exercised only on non-POSIX platforms
+                deadline = time.monotonic() + 60.0
+                while True:
+                    try:
+                        os.mkdir(fallback_dir)
+                        fallback_held = True
+                        break
+                    except FileExistsError:
+                        if time.monotonic() > deadline:
+                            raise TimeoutError(f"timed out waiting for history lock {fallback_dir}") from None
+                        time.sleep(0.01)
+            yield
+        finally:
+            if fcntl is not None:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            elif fallback_held:  # pragma: no cover - exercised only on non-POSIX platforms
+                os.rmdir(fallback_dir)
+
+
+def _atomic_write_parquet(df: pl.DataFrame, path: Path) -> None:
+    """Write a complete parquet file, then atomically swap it into place."""
+    tmp = path.with_name(f".{path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp")
+    try:
+        df.write_parquet(tmp, compression="zstd", statistics=True)
+        with open(tmp, "rb") as handle:
+            os.fsync(handle.fileno())
+        os.replace(tmp, path)
+        try:
+            dir_fd = os.open(path.parent, os.O_RDONLY)
+        except OSError:  # pragma: no cover - directory fsync is best effort
+            return
+        try:
+            os.fsync(dir_fd)
+        finally:
+            os.close(dir_fd)
+    finally:
+        if tmp.exists():
+            tmp.unlink()
+
+
+def append_history(
+    audit: dict,
+    path: str | Path,
+    source: str,
+    verdict: str,
+    notes: str = "",
+    *,
+    validation_source: str | None = None,
+    config_hash: str | None = None,
+) -> pl.DataFrame:
+    """Append one audit row to the history table.
+
+    Parquet has no physical append: the whole table is read, the new row is
+    concatenated, and the table is rewritten. The rewrite is protected by a
+    process lock and completed with ``os.replace`` so concurrent appends
+    cannot lose rows and readers never observe a partial file.
+
+    Idempotency uses a stable identity, not the display ``source`` label:
+    ``run_id`` plus the audited period plus ``config_hash`` (the
+    config/validation identity). Re-appending the same run, even under a
+    different ``source`` label, is a no-op.
+    """
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
+    run_id = str(audit.get("run_id") or Path(audit["run_dir"]).name)
+    risk = audit["risk"]
+    period_start = risk.get("first_entry")
+    period_end = risk.get("last_entry")
+    cfg_hash = config_hash if config_hash is not None else audit.get("config_hash")
+    v_source = validation_source or audit.get("validation_source") or source
+    identity = _stable_identity(run_id, period_start, period_end, cfg_hash)
+    periods = audit.get("periods")
     row = {
         "ts_utc": datetime.now(UTC).isoformat(),
         "source": source,
-        "run_id": Path(audit["run_dir"]).name,
+        "validation_source": v_source,
+        "run_id": run_id,
+        "config_hash": cfg_hash,
+        "periods": json.dumps(periods, sort_keys=True) if periods else None,
+        "identity_key": identity,
         "strategy": audit.get("strategy") or audit["metrics"].get("strategy") or "",
-        "period_start": audit["risk"].get("first_entry"),
-        "period_end": audit["risk"].get("last_entry"),
+        "period_start": period_start,
+        "period_end": period_end,
         "trades": audit["trades"],
         "gross_before_slippage": audit["gross_before_slippage"],
         "slippage": audit["slippage"],
@@ -391,9 +521,9 @@ def append_history(audit: dict, path: str | Path, source: str, verdict: str, not
         "profit_factor": audit["pf"],
         "expectancy_r": audit["expectancy_r"],
         "win_rate": audit["win_rate"],
-        "max_drawdown_pct": audit["risk"].get("max_drawdown_pct"),
-        "last_entry": audit["risk"].get("last_entry"),
-        "kill_switch": audit["risk"].get("kill_switch"),
+        "max_drawdown_pct": risk.get("max_drawdown_pct"),
+        "last_entry": risk.get("last_entry"),
+        "kill_switch": risk.get("kill_switch"),
         "top_loss_reason": audit["top_loss_reason"],
         "top_loss_usdt": audit["top_loss_usdt"],
         "top_loss_share": audit["top_loss_share"],
@@ -408,15 +538,140 @@ def append_history(audit: dict, path: str | Path, source: str, verdict: str, not
         "notes": notes,
     }
     new = pl.DataFrame([row], schema=COLUMNS)
-    if path.exists():
-        old = pl.read_parquet(path)
-        if old.height and old.filter(pl.col("run_id") == row["run_id"]).height:
-            return old
-        df = pl.concat([old, new], how="vertical_relaxed")
+    with _history_lock(path):
+        raw_old = pl.read_parquet(path) if path.exists() else None
+        old_columns = set(raw_old.columns) if raw_old is not None else set()
+        if raw_old is not None and raw_old.height:
+            if "identity_key" in old_columns:
+                duplicate = raw_old.filter(pl.col("identity_key") == identity).height
+            else:
+                # Legacy rows predate the identity column. Preserve the old
+                # run_id-based no-op instead of duplicating them on upgrade.
+                duplicate = raw_old.filter(pl.col("run_id") == run_id).height
+            if duplicate:
+                return _align_history(raw_old)
+        if raw_old is not None:
+            raw_old = _align_history(raw_old)
+        df = pl.concat([raw_old, new], how="vertical_relaxed") if raw_old is not None else new
+        df = _align_history(df)
+        _atomic_write_parquet(df, path)
+        return df
+
+
+def _config_hash(base: dict) -> str | None:
+    if not base:
+        return None
+    payload = json.dumps(base, sort_keys=True, default=str).encode()
+    return hashlib.sha256(payload).hexdigest()[:16]
+
+
+def _int_pair(value: Any) -> list[int] | None:
+    if isinstance(value, (list, tuple)) and len(value) == 2:
+        try:
+            return [int(value[0]), int(value[1])]
+        except (TypeError, ValueError):
+            return None
+    return None
+
+
+def _periods_match(identity: dict, periods: dict | None) -> bool:
+    if not periods:
+        return False
+    identity_periods = identity.get("periods")
+    if isinstance(identity_periods, dict) and identity_periods:
+        compared = False
+        for key in ("dev", "oos", "vault"):
+            if key in identity_periods and key in periods:
+                compared = True
+                if _int_pair(identity_periods[key]) != _int_pair(periods[key]):
+                    return False
+        return compared
+    start, end = identity.get("period_start"), identity.get("period_end")
+    if start is not None and end is not None:
+        return _int_pair([start, end]) == _int_pair(periods.get("dev"))
+    return False
+
+
+def _research_identity(summary: dict) -> dict | None:
+    identity = summary.get("identity") or summary.get("research_identity")
+    if identity is None and isinstance(summary.get("champion_dev"), dict):
+        identity = summary["champion_dev"]
+    return identity if isinstance(identity, dict) else None
+
+
+def _load_research_context(
+    *,
+    root: Path,
+    validation: dict,
+    champion_run_id: str,
+    champion_config_hash: str | None,
+    research_summary: str | Path | None,
+) -> tuple[dict | None, str, Path | None]:
+    """Attach research context only when its recorded identity matches this run.
+
+    A summary without a recorded identity (``identity`` or
+    ``research_identity`` with ``run_id`` and ``periods``) is never attached,
+    because there is no way to prove that its hypotheses belong to this
+    validation run, config and period.
+    """
+    if research_summary:
+        candidates = [Path(research_summary)]
+    elif validation.get("research_summary"):
+        candidates = [Path(validation["research_summary"])]
     else:
-        df = new
-    df.write_parquet(path, compression="zstd", statistics=True)
-    return df
+        candidates = sorted(
+            root.glob("reports/research_*/summary.json"),
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
+    if not candidates:
+        return None, "no research summary found; hypothesis context omitted", None
+
+    periods = validation.get("periods")
+    first_reason = ""
+    for summary_path in candidates:
+        if not summary_path.exists():
+            first_reason = first_reason or f"research summary {summary_path} does not exist"
+            continue
+        try:
+            summary = json.loads(summary_path.read_text())
+        except (OSError, json.JSONDecodeError) as exc:
+            first_reason = first_reason or f"research summary {summary_path} is unreadable: {exc}"
+            continue
+        identity = _research_identity(summary)
+        if identity is None:
+            first_reason = first_reason or (
+                f"research summary {summary_path} has no recorded identity (run_id/periods); "
+                "refusing to attach it"
+            )
+            continue
+        if identity.get("run_id") != champion_run_id:
+            first_reason = first_reason or (
+                f"research summary {summary_path} belongs to run_id {identity.get('run_id')!r}, "
+                f"not {champion_run_id!r}; context omitted"
+            )
+            continue
+        if not _periods_match(identity, periods):
+            first_reason = first_reason or (
+                f"research summary {summary_path} periods do not match this validation; context omitted"
+            )
+            continue
+        recorded_config = identity.get("config_hash")
+        if recorded_config and champion_config_hash and recorded_config != champion_config_hash:
+            first_reason = first_reason or (
+                f"research summary {summary_path} config_hash {recorded_config!r} does not match "
+                f"{champion_config_hash!r}; context omitted"
+            )
+            continue
+        gates_path = summary_path.with_name("gates.json")
+        gates = json.loads(gates_path.read_text()) if gates_path.exists() else {"hypotheses": {}}
+        return {
+            "summary": summary,
+            "gates": gates,
+            "summary_path": summary_path,
+            "identity": identity,
+        }, "", summary_path
+    return None, first_reason or "research summary identity did not match; context omitted", candidates[0]
 
 
 def write_audit_report(
@@ -426,6 +681,7 @@ def write_audit_report(
     doc_path: str | Path | None = None,
     history_path: str | Path | None = None,
     source: str | None = None,
+    research_summary: str | Path | None = None,
 ) -> dict:
     root = root or Path(__file__).resolve().parents[3]
     doc_path = Path(doc_path) if doc_path else root / "docs" / "audits" / "why_no_edge.md"
@@ -437,14 +693,27 @@ def write_audit_report(
     base = validation.get("base_config", {})
     audit = audit_run(run_dir, starting_balance=float(base.get("starting_balance", 20.0)), metric=champion.get("metrics"))
     audit["strategy"] = base.get("strategy", "")
-    summary_path = root / "reports" / "research_round1" / "summary.json"
-    gates_path = root / "reports" / "research_round1" / "gates.json"
-    if summary_path.exists():
-        summary = json.loads(summary_path.read_text())
+    run_id = str(champion.get("run_id") or Path(run_dir).name)
+    src = source or f"validation_{validation.get('generated', '')[:10]}"
+    cfg_hash = champion.get("config_hash") or _config_hash(base)
+    audit["run_id"] = run_id
+    audit["validation_source"] = src
+    audit["config_hash"] = cfg_hash
+    audit["periods"] = validation.get("periods")
+
+    context, reason, matched_path = _load_research_context(
+        root=root,
+        validation=validation,
+        champion_run_id=run_id,
+        champion_config_hash=cfg_hash,
+        research_summary=research_summary,
+    )
+    if context is not None:
+        summary = context["summary"]
+        gates = context["gates"]
         audit["random_expectancy"] = (summary.get("random") or {}).get("expectancy_r")
         audit["baseline_4f_expectancy"] = (summary.get("baseline") or {}).get("expectancy_r")
         audit["hypotheses"] = []
-        gates = json.loads(gates_path.read_text()) if gates_path.exists() else {"hypotheses": {}}
         for name, block in summary.get("hypotheses", {}).items():
             best = block.get("best")
             agg = block.get("configs", {}).get(best, {})
@@ -453,9 +722,36 @@ def write_audit_report(
                                         "pf": agg.get("profit_factor"), "exp": agg.get("expectancy_r"),
                                         "stress_pf": (block.get("stress") or {}).get("profit_factor"),
                                         "verdict": gate.get("configuration_verdict", False)})
+        audit["research_context"] = {
+            "attached": True,
+            "summary": str(context["summary_path"]),
+            "identity": context["identity"],
+        }
+        context_note = ""
+    else:
+        # Never attach another run's hypotheses or benchmark values.
+        audit["random_expectancy"] = None
+        audit["baseline_4f_expectancy"] = None
+        audit["hypotheses"] = None
+        audit["research_context"] = {
+            "attached": False,
+            "reason": reason,
+            "summary": str(matched_path) if matched_path else None,
+            "expected": {"run_id": run_id, "periods": validation.get("periods"), "config_hash": cfg_hash},
+        }
+        context_note = f"research context not attached: {reason}"
     verdict = (validation.get("go_no_go") or {}).get("verdict", "NO_GO")
-    src = source or f"validation_{validation.get('generated', '')[:10]}"
-    history = append_history(audit, history_path, src, verdict)
+    history = append_history(
+        audit,
+        history_path,
+        src,
+        verdict,
+        notes=context_note,
+        validation_source=src,
+        config_hash=cfg_hash,
+    )
+    audit["history_path"] = str(history_path)
+    audit["history_rows"] = history.height
     md = render_markdown(audit, history, verdict=verdict)
     if audit.get("hypotheses"):
         rows = [{"hypothesis": h["name"], "best": h["best"], "trades": h["trades"],
@@ -465,4 +761,5 @@ def write_audit_report(
         md = md.replace("## Root causes (ranked)", section + "## Root causes (ranked)")
     doc_path.parent.mkdir(parents=True, exist_ok=True)
     doc_path.write_text(md)
+    audit["audit_doc"] = str(doc_path)
     return audit
