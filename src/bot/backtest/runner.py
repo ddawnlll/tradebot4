@@ -81,6 +81,7 @@ class BacktestConfig:
     latency_ms: int = 0
     max_positions: int = 1
     two_leg_tp: bool = True
+    static_target_r: float | None = None
     risk_fraction: float = 0.05
     daily_loss_limit_frac: float = 0.15
     kill_switch_drawdown_frac: float = 0.50
@@ -122,6 +123,7 @@ class BacktestConfig:
             "latency_ms": self.latency_ms,
             "max_positions": self.max_positions,
             "two_leg_tp": self.two_leg_tp,
+            "static_target_r": self.static_target_r,
             "risk_fraction": self.risk_fraction,
             "daily_loss_limit_frac": self.daily_loss_limit_frac,
             "kill_switch_drawdown_frac": self.kill_switch_drawdown_frac,
@@ -194,6 +196,7 @@ def run_backtest(cfg: BacktestConfig, paths: Paths | None = None, *, out_dir: Pa
         strategy_version=strategy.version,
         max_positions=cfg.max_positions,
         two_leg_tp=cfg.two_leg_tp,
+        static_target_r=cfg.static_target_r,
         range_score=cfg.range_score,
         scanner=cfg.scanner,
         sizing=SizingConfig(risk_fraction=cfg.risk_fraction, max_leverage=cfg.leverage),

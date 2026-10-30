@@ -543,13 +543,25 @@ def append_history(
         old_columns = set(raw_old.columns) if raw_old is not None else set()
         if raw_old is not None and raw_old.height:
             if "identity_key" in old_columns:
-                duplicate = raw_old.filter(pl.col("identity_key") == identity).height
+                duplicate = raw_old.filter(
+                    (pl.col("identity_key") == identity)
+                    | (pl.col("identity_key").is_null() & (pl.col("run_id") == run_id))
+                ).height
             else:
                 # Legacy rows predate the identity column. Preserve the old
                 # run_id-based no-op instead of duplicating them on upgrade.
                 duplicate = raw_old.filter(pl.col("run_id") == run_id).height
             if duplicate:
-                return _align_history(raw_old)
+                aligned = _align_history(raw_old)
+                legacy = aligned["identity_key"].is_null() & (aligned["run_id"] == run_id)
+                aligned = aligned.with_columns(
+                    pl.when(legacy).then(pl.lit(identity)).otherwise(pl.col("identity_key")).alias("identity_key"),
+                    pl.when(legacy).then(pl.lit(v_source)).otherwise(pl.col("validation_source")).alias("validation_source"),
+                    pl.when(legacy).then(pl.lit(cfg_hash)).otherwise(pl.col("config_hash")).alias("config_hash"),
+                    pl.when(legacy).then(pl.lit(json.dumps(periods, sort_keys=True) if periods else None)).otherwise(pl.col("periods")).alias("periods"),
+                )
+                _atomic_write_parquet(aligned, path)
+                return aligned
         if raw_old is not None:
             raw_old = _align_history(raw_old)
         df = pl.concat([raw_old, new], how="vertical_relaxed") if raw_old is not None else new

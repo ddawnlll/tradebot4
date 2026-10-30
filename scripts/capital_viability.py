@@ -15,6 +15,7 @@ import argparse
 import json
 import math
 from collections import defaultdict
+from dataclasses import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -28,7 +29,7 @@ from bot.risk.capital import (
     Candidate,
     CapitalFilters,
     Envelope,
-    evaluate_tiers,
+    evaluate_candidate,
     summarize,
 )
 
@@ -213,13 +214,20 @@ def build_report(validation_path: Path, out_path: Path) -> dict[str, Any]:
             if filters.unknown_critical_fields and symbol not in unknown_filter_symbols:
                 unknown_filter_symbols[symbol] = list(filters.unknown_critical_fields)
 
-            candidate = Candidate(
+            if entry_price is None or stop_price is None:
+                data_gaps.append(f"trade {row.get('trade_id')} has no usable entry/stop; skipped")
+                continue
+            stop_distance = abs(float(entry_price) - float(stop_price))
+            if stop_distance <= 0:
+                data_gaps.append(f"trade {row.get('trade_id')} has zero stop distance; skipped")
+                continue
+            base = Candidate(
                 symbol=symbol,
                 side=side,
-                entry_price=entry_price,  # type: ignore[arg-type]
-                stop_price=stop_price,  # type: ignore[arg-type]
-                quantity=_as_float(row.get("quantity")),  # type: ignore[arg-type]
-                equity=20.0,  # replaced per tier, never scaled
+                entry_price=float(entry_price),
+                stop_price=float(stop_price),
+                quantity=1.0,
+                equity=20.0,
                 leverage=settings["leverage"],
                 risk_fraction=settings["risk_fraction"],
                 filters=filters,
@@ -228,7 +236,16 @@ def build_report(validation_path: Path, out_path: Path) -> dict[str, Any]:
                 slippage_bps_per_side=settings["slippage_bps_per_side"],
                 stop_distance_source=stop_source,
             )
-            for env in evaluate_tiers(candidate):
+            for tier in SCENARIO_TIERS:
+                # Size independently for each tier: equity * risk / stop distance.
+                # This is not a scaled copy of the 20 USDT order.
+                desired_qty = tier.equity * settings["risk_fraction"] / stop_distance
+                step = filters.qty_step
+                qty = desired_qty if step is None or step <= 0 else math.floor(desired_qty / step) * step
+                if qty <= 0:
+                    qty = float(row.get("quantity") or 1.0)
+                candidate = replace(base, equity=tier.equity, quantity=qty)
+                env = evaluate_candidate(candidate, tier_label=tier.label)
                 tier_envs[env.tier_label].append(env)
                 add_envelope(tier_symbols[env.tier_label], env)
                 tier_sources[env.tier_label][source_key].append(env)

@@ -51,13 +51,9 @@ The round trip costs 0.37% of starting equity per trade. Break-even gross before
 
 Top 5 losing symbols account for 23.9% of negative PnL. MAE mean/median -0.47/-0.51R; MFE mean/median +0.55/+0.57R. 0 trades had MAE <= -1R, 17 had MFE >= +1R; 2 realized <= -1R and 44 realized <= -0.5R.
 
-## Hypothesis results
+## Research context
 
-| hypothesis | best | trades | PF | exp R | stress PF | verdict |
-|---|---|---|---|---|---|---|
-| H1 | h1a | 678 | 0.919 | -0.0296 | 0.860 | FAIL |
-| H2 | h2a | 27 | 0.467 | -0.2975 | 0.418 | FAIL |
-| H3 | h3b | 89 | 0.884 | -0.0391 | 0.795 | FAIL |
+Not attached: research summary /Users/hootie/src/tradebot4/reports/research_round1/summary.json has no recorded identity (run_id/periods); refusing to attach it. Hypothesis, random and baseline values are omitted rather than mixing results from another run, config or period.
 
 ## Root causes (ranked)
 

@@ -106,6 +106,7 @@ class EngineConfig:
     strategy_version: str = "1.0.0"
     max_positions: int = 1
     two_leg_tp: bool = True
+    static_target_r: float | None = None
     record_rejected_setups: bool = True
     record_all_rejects: bool = False
     range_score: RangeScoreConfig = field(default_factory=RangeScoreConfig)
@@ -325,6 +326,12 @@ class DecisionEngine:
             for tp in proposal.take_profits
             if (tp > proposal.entry_price if side is Side.LONG else tp < proposal.entry_price)
         ]
+        if self.config.static_target_r is not None:
+            risk = abs(proposal.entry_price - stop)
+            if risk <= 0:
+                return None, RejectReason.NO_RANGE, "static target with zero risk"
+            target = proposal.entry_price + (1.0 if side is Side.LONG else -1.0) * self.config.static_target_r * risk
+            tps = [asset.round_price_towards(target, "up" if side is Side.LONG else "down")]
         if not tps:
             return None, RejectReason.NO_RANGE, "no valid tp"
 

@@ -115,6 +115,8 @@ def _run(task: dict) -> dict:
         symbols=task["symbols"],
         start_ms=fold[2],
         end_ms=fold[3],
+        starting_balance=task.get("starting_balance", 20.0),
+        static_target_r=spec.get("static_target_r"),
         journal=False,
         enrich=False,
         strict_errors=spec.get("strict_errors", True),

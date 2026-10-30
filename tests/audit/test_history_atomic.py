@@ -260,3 +260,19 @@ def test_discovery_does_not_hardcode_research_round1(tmp_path):
     )
     assert audit["research_context"]["attached"] is True
     assert "research_round_xyz" in audit["research_context"]["summary"]
+
+
+def test_legacy_row_is_upgraded_without_duplicate(tmp_path):
+    run = _run_dir(tmp_path)
+    base = audit_run(run, metric=_metrics())
+    path = tmp_path / "history.parquet"
+    append_history(base, path, "legacy", "NO_GO")
+    legacy = pl.read_parquet(path).drop(
+        ["validation_source", "config_hash", "periods", "identity_key"]
+    )
+    legacy.write_parquet(path)
+    append_history(base, path, "legacy", "NO_GO")
+    df = pl.read_parquet(path)
+    assert df.height == 1
+    assert df["identity_key"][0] is not None
+    assert df["run_id"][0] == Path(base["run_dir"]).name
