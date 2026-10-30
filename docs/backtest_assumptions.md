@@ -20,10 +20,10 @@ direction, or clearly labelled as optimistic.
 
 | Item | Assumption | Bias |
 |---|---|---|
-| Entry | Market order at the 15m close that produced the signal (no latency model) | optimistic by roughly the time to the next trade |
-| Exit (signal) | Market order at the 1m close where the rule triggered | neutral |
-| Stop | `STOP_MARKET`, trigger on `LAST`, fills at the next synthetic price point; gaps fill worse than the stop | realistic to conservative |
-| Take profit | `LIMIT` with `prob_fill_on_limit = 1.0` at the touch; maker fee | optimistic on queue position, partially offset by maker fee |
+| Entry | Market order at the 15m close that produced the signal (no latency model), filled 2 bps or one tick adverse, whichever is larger | optimistic on timing, conservative on price |
+| Exit (signal) | Market order at the 1m close where the rule triggered, 2 bps or one tick adverse | conservative on price |
+| Stop | `STOP_MARKET`, trigger on `LAST`, fills at the next synthetic price point with an additional 5 bps adverse; bar gaps are included | conservative |
+| Take profit | `LIMIT` fills only after the market trades at least one tick through the limit, with a 90% touch-fill probability; maker fee | conservative |
 | Intrabar path | `Open -> High -> Low -> Close` (`bar_adaptive_high_low_ordering=False`) | optimistic for longs whose TP precedes the stop, conservative for shorts |
 | Ambiguity | A bar where both stop and TP are touched is counted and reported; hypothetical analyses use `STOP_FIRST` | reported |
 | Latency | Zero. A `StaticLatencyModel` on bar-only data defers fills to the next bar close, which overstates delay | neutral for research, must be revisited live |
@@ -37,7 +37,10 @@ direction, or clearly labelled as optimistic.
 | Maker fee | 0.020% |
 | Taker fee | 0.050% |
 | Slippage in sizing | 2 bps per side, included in the risk budget |
-| Funding | Historical rate at publication time; positive rate debits longs |
+| Market fill slippage | `max(2 bps, 1 tick)` adverse |
+| Stop fill slippage | 5 bps adverse plus any bar gap |
+| Limit fill rule | at least one tick through the limit; 90% touch fill probability |
+| Funding | Historical rate at publication time; positive rate debits longs; missing or gappy funding aborts the run |
 | Funding price proxy | 1m close at settlement, not mark price (mark data not in the catalog) |
 | Fee reserve | 1.0x the taker fee at entry and exit |
 

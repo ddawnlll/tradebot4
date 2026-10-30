@@ -102,10 +102,14 @@ class Downloader:
         target.parent.mkdir(parents=True, exist_ok=True)
         checksum_file = target.with_suffix(target.suffix + ".CHECKSUM")
         async with self._sem:
-            if target.exists() and checksum_file.exists() and not force:
-                if self._verify(target, checksum_file.read_text()):
-                    self.stats["skipped"] += 1
-                    return target
+            if (
+                target.exists()
+                and checksum_file.exists()
+                and not force
+                and self._verify(target, checksum_file.read_text())
+            ):
+                self.stats["skipped"] += 1
+                return target
             for attempt in range(self.retries):
                 try:
                     r = await client.get(f.url, timeout=self.timeout)

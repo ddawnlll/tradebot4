@@ -34,6 +34,13 @@ from bot.core.models import OrderIntent, PortfolioSnapshot, Side
 MS = 1_000_000  # ns per ms
 
 
+def _cost_bps(fill_price: float, reference: float | None, side: OrderSide) -> float | None:
+    if reference is None or reference <= 0:
+        return None
+    sign = 1.0 if side is OrderSide.BUY else -1.0
+    return (fill_price - reference) * sign / reference * 10_000.0
+
+
 def _clamp_intent_quantity(intent: OrderIntent, net_qty: float) -> OrderIntent:
     if intent.quantity <= net_qty + 1e-12:
         return intent
@@ -72,6 +79,7 @@ class _OrderMeta:
     filled_qty: float = 0.0
     reason: Any = None
     signal_id: str = ""
+    reference_price: float | None = None
 
     @property
     def complete(self) -> bool:
@@ -150,7 +158,7 @@ class BacktestBridge(Strategy):
             reduce_only=False,
             client_order_id=ClientOrderId(cid),
         )
-        self._orders[cid] = _OrderMeta(cid, intent.symbol, "ENTRY", requested_qty=intent.quantity, signal_id=intent.signal_id)
+        self._orders[cid] = _OrderMeta(cid, intent.symbol, "ENTRY", requested_qty=intent.quantity, signal_id=intent.signal_id, reference_price=intent.entry_price)
         self._record_order(intent.ts_ms, intent.symbol, cid, "ENTRY", "MARKET", None, intent.quantity)
         self.submit_order(order)
 
@@ -196,7 +204,7 @@ class BacktestBridge(Strategy):
             reduce_only=True,
             client_order_id=ClientOrderId(stop_cid),
         )
-        self._orders[stop_cid] = _OrderMeta(stop_cid, intent.symbol, "STOP", requested_qty=qty.as_double(), signal_id=intent.signal_id)
+        self._orders[stop_cid] = _OrderMeta(stop_cid, intent.symbol, "STOP", requested_qty=qty.as_double(), signal_id=intent.signal_id, reference_price=intent.stop_price)
         self._protective.setdefault(intent.symbol, {})["STOP"] = stop_cid
         self._record_order(intent.ts_ms, intent.symbol, stop_cid, "STOP_MARKET", "STOP", intent.stop_price, qty.as_double())
         self.submit_order(stop)
@@ -227,7 +235,7 @@ class BacktestBridge(Strategy):
                 client_order_id=ClientOrderId(cid),
             )
             kind = intent.leg_kinds[i] if i < len(intent.leg_kinds) else ("TP1" if i == 0 else "TP2")
-            self._orders[cid] = _OrderMeta(cid, intent.symbol, kind, leg=i, requested_qty=leg_qty.as_double(), signal_id=intent.signal_id)
+            self._orders[cid] = _OrderMeta(cid, intent.symbol, kind, leg=i, requested_qty=leg_qty.as_double(), signal_id=intent.signal_id, reference_price=tp)
             self._protective.setdefault(intent.symbol, {})[kind] = cid
             self._record_order(intent.ts_ms, intent.symbol, cid, "LIMIT", kind, tp, leg_qty.as_double())
             self.submit_order(order)
@@ -250,7 +258,7 @@ class BacktestBridge(Strategy):
             reduce_only=True,
             client_order_id=ClientOrderId(cid),
         )
-        self._orders[cid] = _OrderMeta(cid, intent.symbol, "EXIT", requested_qty=qty.as_double(), reason=intent.close_reason, signal_id=intent.signal_id)
+        self._orders[cid] = _OrderMeta(cid, intent.symbol, "EXIT", requested_qty=qty.as_double(), reason=intent.close_reason, signal_id=intent.signal_id, reference_price=intent.entry_price)
         self._record_order(intent.ts_ms, intent.symbol, cid, "MARKET", "EXIT", intent.entry_price, qty.as_double())
         self.submit_order(order)
 
@@ -304,6 +312,8 @@ class BacktestBridge(Strategy):
                 "liquidity": "TAKER" if event.liquidity_side.name == "TAKER" else "MAKER",
                 "order_type": event.order_type.name,
                 "signal_id": meta.signal_id if meta else "",
+                "reference_price": meta.reference_price if meta else None,
+                "cost_bps": _cost_bps(px, meta.reference_price if meta else None, event.order_side),
             }
         )
         if meta is None:
@@ -395,6 +405,19 @@ class BacktestBridge(Strategy):
         self._engine.add_funding(symbol, amount)
         self._funding_total += amount
         self.out.funding.append({"ts_ms": event.ts_event // MS, "symbol": symbol, "amount": amount})
+
+    def capture_final_equity(self, ts_ms: int) -> None:
+        """Append a final equity observation after the last bar."""
+        snap = self._snapshot(ts_ms)
+        self.out.equity.append(
+            {
+                "ts_ms": ts_ms,
+                "equity": snap.equity,
+                "balance": snap.balance,
+                "used_margin": snap.used_margin,
+                "unrealized_pnl": snap.unrealized_pnl,
+            }
+        )
 
     def collect_funding_adjustments(self) -> list[dict]:
         """Read funding adjustments from the cache.

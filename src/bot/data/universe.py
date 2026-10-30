@@ -41,7 +41,7 @@ SYMBOL_KEY = "data/futures/um/monthly/klines/"
 def list_all_symbols(timeout: float = 60.0, include_non_usdt: bool = False) -> list[str]:
     def page(marker: str) -> tuple[list[str], str | None]:
         q = urllib.parse.urlencode({"delimiter": "/", "prefix": SYMBOL_KEY, "max-keys": 1000, "marker": marker})
-        with urllib.request.urlopen(f"{S3}?{q}", timeout=timeout) as r:  # noqa: S310 - fixed host
+        with urllib.request.urlopen(f"{S3}?{q}", timeout=timeout) as r:
             body = r.read().decode()
         found = re.findall(r"<CommonPrefixes><Prefix>" + re.escape(SYMBOL_KEY) + r"([^<]+)/</Prefix>", body)
         truncated = "<IsTruncated>true</IsTruncated>" in body
@@ -86,7 +86,6 @@ def build_universe(
     asyncio.run(dl.fetch_many(files))
 
     rows: list[dict] = []
-    prev_day = as_of - timedelta(days=1)
     for s in symbols:
         fs = [dl.target_path(monthly_file("klines", s, "1d", y, m)) for (y, m) in months]
         fs = [p for p in fs if p.exists()]

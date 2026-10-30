@@ -13,6 +13,7 @@ import polars as pl
 from nautilus_trader.model import FundingRateUpdate, InstrumentId
 
 MS_TO_NS = 1_000_000
+DAY_MS = 86_400_000
 
 
 def load_funding(
@@ -55,6 +56,57 @@ def _dec(x: float):
     from decimal import Decimal
 
     return Decimal(f"{x:.12f}")
+
+
+def validate_funding_coverage(
+    paths,
+    symbols: list[str],
+    start_ms: int,
+    end_ms: int,
+    *,
+    max_gap_ms: int = DAY_MS,
+) -> None:
+    """Fail loudly when a traded symbol has missing or gappy funding data.
+
+    A silent zero funding assumption is a real source of overstated PnL for a
+    20 USDT account, so a missing symbol/period aborts the run instead of
+    producing a quietly optimistic result.
+    """
+    from bot.data.loader import load_bars_frame
+
+    path = paths.funding / "funding.parquet"
+    if not path.exists():
+        raise RuntimeError(f"funding data missing: {path}")
+    fund = pl.read_parquet(path)
+    problems: list[str] = []
+    for symbol in symbols:
+        bars = load_bars_frame(paths, symbol, start_ms, end_ms).filter(pl.col("volume") > 0)
+        if bars.height == 0:
+            # Delisted symbols keep zero-volume flat rows in the archive; they
+            # cannot be traded and do not accrue funding.
+            continue
+        first_bar = int(bars["ts_open_ms"][0])
+        last_bar = int(bars["ts_close_ms"][-1])
+        sub = fund.filter(
+            (pl.col("symbol") == symbol)
+            & (pl.col("ts_ms") >= first_bar)
+            & (pl.col("ts_ms") <= last_bar)
+        ).sort("ts_ms")
+        if sub.height == 0:
+            problems.append(f"{symbol}: no funding rows")
+            continue
+        first_fund = int(sub["ts_ms"][0])
+        last_fund = int(sub["ts_ms"][-1])
+        diffs = sub["ts_ms"].diff().drop_nulls()
+        largest_gap = int(diffs.max()) if diffs.len() else 0
+        if first_fund - first_bar > max_gap_ms:
+            problems.append(f"{symbol}: first funding {first_fund} after first bar {first_bar}")
+        if last_bar - last_fund > max_gap_ms:
+            problems.append(f"{symbol}: last funding {last_fund} before last bar {last_bar}")
+        if largest_gap > max_gap_ms:
+            problems.append(f"{symbol}: funding gap {largest_gap} ms")
+    if problems:
+        raise RuntimeError("funding coverage incomplete: " + "; ".join(problems[:12]))
 
 
 def funding_for_trades(trades, fills, funding_df, paths, tolerance: float = 1e-9) -> tuple[list[dict], list]:

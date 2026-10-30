@@ -15,7 +15,6 @@ import logging
 from pathlib import Path
 
 import polars as pl
-
 from nautilus_trader.model import Bar, BarType
 from nautilus_trader.persistence import ParquetDataCatalog
 

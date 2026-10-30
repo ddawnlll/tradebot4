@@ -11,8 +11,8 @@ from pathlib import Path
 import polars as pl
 
 from bot.data.loader import load_bars_frame
-from bot.data.storage import Paths, dataset_hash, file_sha256
 from bot.data.normalize import parquet_files
+from bot.data.storage import Paths, dataset_hash, file_sha256
 
 log = logging.getLogger(__name__)
 
